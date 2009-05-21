@@ -4,7 +4,7 @@
  *
  * $Id$
  */
-package it.csi.mddtools.servicegen.presentation;
+package it.csi.mddtools.svcorch.presentation;
 
 
 import java.util.ArrayList;
@@ -73,12 +73,9 @@ import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.ISetSelectionTarget;
 
-import it.csi.mddtools.servicegen.BaseTypes;
-import it.csi.mddtools.servicegen.SOABEModel;
-import it.csi.mddtools.servicegen.ServicegenFactory;
-import it.csi.mddtools.servicegen.ServicegenPackage;
-import it.csi.mddtools.servicegen.provider.Servicegen_metamodelEditPlugin;
-import it.csi.mddtools.typedef.Type;
+import it.csi.mddtools.svcorch.SvcorchFactory;
+import it.csi.mddtools.svcorch.SvcorchPackage;
+import it.csi.mddtools.svcorch.provider.SvcorchEditPlugin;
 
 
 import org.eclipse.core.runtime.Path;
@@ -98,7 +95,7 @@ import org.eclipse.ui.PartInitException;
  * <!-- end-user-doc -->
  * @generated
  */
-public class ServicegenModelWizard extends Wizard implements INewWizard {
+public class SvcorchModelWizard extends Wizard implements INewWizard {
 	/**
 	 * The supported extensions for created files.
 	 * <!-- begin-user-doc -->
@@ -106,7 +103,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * @generated
 	 */
 	public static final List<String> FILE_EXTENSIONS =
-		Collections.unmodifiableList(Arrays.asList(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicegenEditorFilenameExtensions").split("\\s*,\\s*")));
+		Collections.unmodifiableList(Arrays.asList(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchEditorFilenameExtensions").split("\\s*,\\s*")));
 
 	/**
 	 * A formatted list of supported file extensions, suitable for display.
@@ -115,7 +112,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * @generated
 	 */
 	public static final String FORMATTED_FILE_EXTENSIONS =
-		Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicegenEditorFilenameExtensions").replaceAll("\\s*,\\s*", ", ");
+		SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchEditorFilenameExtensions").replaceAll("\\s*,\\s*", ", ");
 
 	/**
 	 * This caches an instance of the model package.
@@ -123,7 +120,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected ServicegenPackage servicegenPackage = ServicegenPackage.eINSTANCE;
+	protected SvcorchPackage svcorchPackage = SvcorchPackage.eINSTANCE;
 
 	/**
 	 * This caches an instance of the model factory.
@@ -131,7 +128,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected ServicegenFactory servicegenFactory = servicegenPackage.getServicegenFactory();
+	protected SvcorchFactory svcorchFactory = svcorchPackage.getSvcorchFactory();
 
 	/**
 	 * This is the file creation page.
@@ -139,7 +136,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected ServicegenModelWizardNewFileCreationPage newFileCreationPage;
+	protected SvcorchModelWizardNewFileCreationPage newFileCreationPage;
 
 	/**
 	 * This is the initial object creation page.
@@ -147,17 +144,8 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected ServicegenModelWizardInitialObjectCreationPage initialObjectCreationPage;
+	protected SvcorchModelWizardInitialObjectCreationPage initialObjectCreationPage;
 
-	
-	/**
-	 * This is the initial object creation page.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated NOT
-	 */
-	protected ServicegenModelWizardAnaprodDataCreationPage anaprodDataCreationPage;
-	
 	/**
 	 * Remember the selection during initialization for populating the default container.
 	 * <!-- begin-user-doc -->
@@ -191,8 +179,8 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.workbench = workbench;
 		this.selection = selection;
-		setWindowTitle(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_Wizard_label"));
-		setDefaultPageImageDescriptor(ExtendedImageRegistry.INSTANCE.getImageDescriptor(Servicegen_metamodelEditorPlugin.INSTANCE.getImage("full/wizban/NewServicegen")));
+		setWindowTitle(SvcorchEditorPlugin.INSTANCE.getString("_UI_Wizard_label"));
+		setDefaultPageImageDescriptor(ExtendedImageRegistry.INSTANCE.getImageDescriptor(SvcorchEditorPlugin.INSTANCE.getImage("full/wizban/NewSvcorch")));
 	}
 
 	/**
@@ -204,7 +192,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	protected Collection<String> getInitialObjectNames() {
 		if (initialObjectNames == null) {
 			initialObjectNames = new ArrayList<String>();
-			for (EClassifier eClassifier : servicegenPackage.getEClassifiers()) {
+			for (EClassifier eClassifier : svcorchPackage.getEClassifiers()) {
 				if (eClassifier instanceof EClass) {
 					EClass eClass = (EClass)eClassifier;
 					if (!eClass.isAbstract()) {
@@ -221,37 +209,11 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * Create a new model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated NOT
+	 * @generated
 	 */
 	protected EObject createInitialModel() {
-		EClass eClass = (EClass)servicegenPackage.getEClassifier(initialObjectCreationPage.getInitialObjectName());
-		EObject rootObject = servicegenFactory.create(eClass);
-		
-		// se la classe scelta è la root inizializzo il file con l'insieme dei tipi base CSI e i codici anaprod
-		if (initialObjectCreationPage.getInitialObjectName().indexOf("SOABEModel")!=-1){
-			// crea tipi base
-			Type [] baseCSITypes = it.csi.mddtools.servicegen.genutils.CodeGenerationUtils.generateCSIBaseTypes();
-			SOABEModel model = (SOABEModel)rootObject;
-			BaseTypes baseTypesContainer = servicegenFactory.createBaseTypes();
-			model.getBaseTypes().add(baseTypesContainer);
-			for (int i = 0; i < baseCSITypes.length; i++) {
-				baseTypesContainer.getBaseTypes().add(baseCSITypes[i]);
-			}
-			// codici anaprod
-			model.setCodProdotto(anaprodDataCreationPage.getCodProdotto());
-			model.setCodComponente(anaprodDataCreationPage.getCodComponente());
-			model.setVersioneProdotto(anaprodDataCreationPage.getVerProdotto());
-			model.setVersioneComponente(anaprodDataCreationPage.getVerComponente());
-		}
-		// se la classe è BaseTypes creo un modello di tipi base
-		else if (initialObjectCreationPage.getInitialObjectName().indexOf("BaseTypes")!=-1){
-			// crea tipi base
-			Type [] baseCSITypes = it.csi.mddtools.servicegen.genutils.CodeGenerationUtils.generateCSIBaseTypes();
-			BaseTypes model = (BaseTypes)rootObject;
-			for (int i = 0; i < baseCSITypes.length; i++) {
-				model.getBaseTypes().add(baseCSITypes[i]);
-			}
-		}
+		EClass eClass = (EClass)svcorchPackage.getEClassifier(initialObjectCreationPage.getInitialObjectName());
+		EObject rootObject = svcorchFactory.create(eClass);
 		return rootObject;
 	}
 
@@ -301,7 +263,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 							resource.save(options);
 						}
 						catch (Exception exception) {
-							Servicegen_metamodelEditorPlugin.INSTANCE.log(exception);
+							SvcorchEditorPlugin.INSTANCE.log(exception);
 						}
 						finally {
 							progressMonitor.done();
@@ -334,14 +296,14 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 					 workbench.getEditorRegistry().getDefaultEditor(modelFile.getFullPath().toString()).getId());
 			}
 			catch (PartInitException exception) {
-				MessageDialog.openError(workbenchWindow.getShell(), Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_OpenEditorError_label"), exception.getMessage());
+				MessageDialog.openError(workbenchWindow.getShell(), SvcorchEditorPlugin.INSTANCE.getString("_UI_OpenEditorError_label"), exception.getMessage());
 				return false;
 			}
 
 			return true;
 		}
 		catch (Exception exception) {
-			Servicegen_metamodelEditorPlugin.INSTANCE.log(exception);
+			SvcorchEditorPlugin.INSTANCE.log(exception);
 			return false;
 		}
 	}
@@ -352,14 +314,14 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public class ServicegenModelWizardNewFileCreationPage extends WizardNewFileCreationPage {
+	public class SvcorchModelWizardNewFileCreationPage extends WizardNewFileCreationPage {
 		/**
 		 * Pass in the selection.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		public ServicegenModelWizardNewFileCreationPage(String pageId, IStructuredSelection selection) {
+		public SvcorchModelWizardNewFileCreationPage(String pageId, IStructuredSelection selection) {
 			super(pageId, selection);
 		}
 
@@ -375,7 +337,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 				String extension = new Path(getFileName()).getFileExtension();
 				if (extension == null || !FILE_EXTENSIONS.contains(extension)) {
 					String key = FILE_EXTENSIONS.size() > 1 ? "_WARN_FilenameExtensions" : "_WARN_FilenameExtension";
-					setErrorMessage(Servicegen_metamodelEditorPlugin.INSTANCE.getString(key, new Object [] { FORMATTED_FILE_EXTENSIONS }));
+					setErrorMessage(SvcorchEditorPlugin.INSTANCE.getString(key, new Object [] { FORMATTED_FILE_EXTENSIONS }));
 					return false;
 				}
 				return true;
@@ -399,7 +361,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public class ServicegenModelWizardInitialObjectCreationPage extends WizardPage {
+	public class SvcorchModelWizardInitialObjectCreationPage extends WizardPage {
 		/**
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -427,18 +389,17 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		public ServicegenModelWizardInitialObjectCreationPage(String pageId) {
+		public SvcorchModelWizardInitialObjectCreationPage(String pageId) {
 			super(pageId);
 		}
 
 		/**
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
-		 * @generated NOT
+		 * @generated
 		 */
 		public void createControl(Composite parent) {
-			Composite composite = new Composite(parent, SWT.NONE);
-			{
+			Composite composite = new Composite(parent, SWT.NONE); {
 				GridLayout layout = new GridLayout();
 				layout.numColumns = 1;
 				layout.verticalSpacing = 12;
@@ -453,7 +414,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 
 			Label containerLabel = new Label(composite, SWT.LEFT);
 			{
-				containerLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ModelObject"));
+				containerLabel.setText(SvcorchEditorPlugin.INSTANCE.getString("_UI_ModelObject"));
 
 				GridData data = new GridData();
 				data.horizontalAlignment = GridData.FILL;
@@ -479,7 +440,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 
 			Label encodingLabel = new Label(composite, SWT.LEFT);
 			{
-				encodingLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_XMLEncoding"));
+				encodingLabel.setText(SvcorchEditorPlugin.INSTANCE.getString("_UI_XMLEncoding"));
 
 				GridData data = new GridData();
 				data.horizontalAlignment = GridData.FILL;
@@ -507,25 +468,12 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 		/**
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
-		 * @generated NOT
+		 * @generated
 		 */
 		protected ModifyListener validator =
 			new ModifyListener() {
 				public void modifyText(ModifyEvent e) {
 					setPageComplete(validatePage());
-					// TODO abilita/disabilita la pagina dei codici anaprod in base al tipo di oggetto selezionato
-					
-//					if (initialObjectField.getSelection().toString().indexOf("SOABEModel")!=-1){
-//						anaprodDataCreationPage.setVisible(true);
-//					}
-//					else{
-//						anaprodDataCreationPage.setVisible(false);
-//						
-//						anaprodDataCreationPage.codComponente.setText("N.U");
-//						anaprodDataCreationPage.codProdotto.setText("N.U");
-//						anaprodDataCreationPage.verComponente.setText("N.U");
-//						anaprodDataCreationPage.verProdotto.setText("N.U");
-//					}
 				}
 			};
 
@@ -591,10 +539,10 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 		 */
 		protected String getLabel(String typeName) {
 			try {
-				return Servicegen_metamodelEditPlugin.INSTANCE.getString("_UI_" + typeName + "_type");
+				return SvcorchEditPlugin.INSTANCE.getString("_UI_" + typeName + "_type");
 			}
 			catch(MissingResourceException mre) {
-				Servicegen_metamodelEditorPlugin.INSTANCE.log(mre);
+				SvcorchEditorPlugin.INSTANCE.log(mre);
 			}
 			return typeName;
 		}
@@ -607,7 +555,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 		protected Collection<String> getEncodings() {
 			if (encodings == null) {
 				encodings = new ArrayList<String>();
-				for (StringTokenizer stringTokenizer = new StringTokenizer(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_XMLEncodingChoices")); stringTokenizer.hasMoreTokens(); ) {
+				for (StringTokenizer stringTokenizer = new StringTokenizer(SvcorchEditorPlugin.INSTANCE.getString("_UI_XMLEncodingChoices")); stringTokenizer.hasMoreTokens(); ) {
 					encodings.add(stringTokenizer.nextToken());
 				}
 			}
@@ -616,315 +564,19 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	}
 
 	/**
-	 * This is the page where the type of object to create is selected.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated NOT
-	 */
-	public class ServicegenModelWizardAnaprodDataCreationPage extends WizardPage {
-		
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		protected org.eclipse.swt.widgets.Text codProdotto;
-		
-		
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		protected org.eclipse.swt.widgets.Text codComponente;
-		
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		protected org.eclipse.swt.widgets.Text verProdotto;
-		
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		protected org.eclipse.swt.widgets.Text verComponente;
-	
-		/**
-		 * Pass in the selection.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		public ServicegenModelWizardAnaprodDataCreationPage(String pageId) {
-			super(pageId);
-		}
-	
-		
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		public String getCodProdotto() {
-			String txt = codProdotto.getText();
-			if (txt==null || txt.length()==0)
-				return null;
-			else
-				return txt;
-		}
-		
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		public String getCodComponente() {
-			String txt = codComponente.getText();
-			if (txt==null || txt.length()==0)
-				return null;
-			else
-				return txt;
-		}
-		
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		public String getVerProdotto() {
-			String txt = verProdotto.getText();
-			if (txt==null || txt.length()==0)
-				return null;
-			else
-				return txt;
-		}
-		
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		public String getVerComponente() {
-			String txt = verComponente.getText();
-			if (txt==null || txt.length()==0)
-				return null;
-			else
-				return txt;
-		}
-		
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		public void createControl(Composite parent) {
-			Composite composite = new Composite(parent, SWT.NONE);
-			{
-				GridLayout layout = new GridLayout();
-				layout.numColumns = 1;
-				layout.verticalSpacing = 12;
-				composite.setLayout(layout);
-	
-				GridData data = new GridData();
-				data.verticalAlignment = GridData.FILL;
-				data.grabExcessVerticalSpace = true;
-				data.horizontalAlignment = GridData.FILL;
-				composite.setLayoutData(data);
-			}
-	
-			Label codProdottoLabel = new Label(composite, SWT.LEFT);
-			{
-				codProdottoLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_CodProdotto_label"));
-	
-				GridData data = new GridData();
-				data.horizontalAlignment = GridData.FILL;
-				codProdottoLabel.setLayoutData(data);
-			}
-	
-			codProdotto = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
-			{
-				GridData data = new GridData();
-				data.horizontalAlignment = GridData.FILL;
-				data.grabExcessHorizontalSpace = true;
-				codProdotto.setLayoutData(data);
-				codProdotto.addModifyListener(validator);
-			}
-			
-			Label verProdottoLabel = new Label(composite, SWT.LEFT);
-			{
-				verProdottoLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_VerProdotto_label"));
-	
-				GridData data = new GridData();
-				data.horizontalAlignment = GridData.FILL;
-				verProdottoLabel.setLayoutData(data);
-			}
-			
-			verProdotto = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
-			{
-				GridData data = new GridData();
-				data.horizontalAlignment = GridData.FILL;
-				data.grabExcessHorizontalSpace = true;
-				verProdotto.setLayoutData(data);
-				verProdotto.addModifyListener(validator);
-			}
-			
-			Label codComponenteLabel = new Label(composite, SWT.LEFT);
-			{
-				codComponenteLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_CodComponente_label"));
-	
-				GridData data = new GridData();
-				data.horizontalAlignment = GridData.FILL;
-				codComponenteLabel.setLayoutData(data);
-			}
-			
-			codComponente = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
-			{
-				GridData data = new GridData();
-				data.horizontalAlignment = GridData.FILL;
-				data.grabExcessHorizontalSpace = true;
-				codComponente.setLayoutData(data);
-				codComponente.addModifyListener(validator);
-			}
-	
-			Label verComponenteLabel = new Label(composite, SWT.LEFT);
-			{
-				verComponenteLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_VerComponente_label"));
-	
-				GridData data = new GridData();
-				data.horizontalAlignment = GridData.FILL;
-				verComponenteLabel.setLayoutData(data);
-			}
-			
-			verComponente = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
-			{
-				GridData data = new GridData();
-				data.horizontalAlignment = GridData.FILL;
-				data.grabExcessHorizontalSpace = true;
-				verComponente.setLayoutData(data);
-				verComponente.addModifyListener(validator);
-			}
-			
-			setPageComplete(validatePage());
-			setControl(composite);
-		}
-	
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		protected ModifyListener validator =
-			new ModifyListener() {
-				public void modifyText(ModifyEvent e) {
-					setPageComplete(validatePage());
-				}
-			};
-	
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		protected boolean validatePage() {
-			//return getInitialObjectName() != null && getEncodings().contains(encodingField.getText());
-			return getCodProdotto()!=null && getCodComponente()!=null&&
-			getVerProdotto()!=null && getVerComponente()!=null;
-		}
-	
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		@Override
-		public void setVisible(boolean visible) {
-			super.setVisible(visible);
-			if (visible) {
-//				if (initialObjectField.getItemCount() == 1) {
-//					initialObjectField.clearSelection();
-//					encodingField.setFocus();
-//				}
-//				else {
-//					encodingField.clearSelection();
-//					initialObjectField.setFocus();
-//				}
-			}
-		}
-	
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-//		public String getInitialObjectName() {
-//			String label = initialObjectField.getText();
-//	
-//			for (String name : getInitialObjectNames()) {
-//				if (getLabel(name).equals(label)) {
-//					return name;
-//				}
-//			}
-//			return null;
-//		}
-	
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-//		public String getEncoding() {
-//			return encodingField.getText();
-//		}
-	
-		/**
-		 * Returns the label for the specified type name.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-		protected String getLabel(String typeName) {
-			try {
-				return Servicegen_metamodelEditPlugin.INSTANCE.getString("_UI_" + typeName + "_type");
-			}
-			catch(MissingResourceException mre) {
-				Servicegen_metamodelEditorPlugin.INSTANCE.log(mre);
-			}
-			return typeName;
-		}
-	
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated NOT
-		 */
-//		protected Collection<String> getEncodings() {
-//			if (encodings == null) {
-//				encodings = new ArrayList<String>();
-//				for (StringTokenizer stringTokenizer = new StringTokenizer(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_XMLEncodingChoices")); stringTokenizer.hasMoreTokens(); ) {
-//					encodings.add(stringTokenizer.nextToken());
-//				}
-//			}
-//			return encodings;
-//		}
-	}
-
-	/**
 	 * The framework calls this to create the contents of the wizard.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated NOT
+	 * @generated
 	 */
 		@Override
 	public void addPages() {
 		// Create a page, set the title, and the initial model file name.
 		//
-		newFileCreationPage = new ServicegenModelWizardNewFileCreationPage("Whatever", selection);
-		newFileCreationPage.setTitle(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicegenModelWizard_label"));
-		newFileCreationPage.setDescription(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicegenModelWizard_description"));
-		newFileCreationPage.setFileName(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicegenEditorFilenameDefaultBase") + "." + FILE_EXTENSIONS.get(0));
+		newFileCreationPage = new SvcorchModelWizardNewFileCreationPage("Whatever", selection);
+		newFileCreationPage.setTitle(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchModelWizard_label"));
+		newFileCreationPage.setDescription(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchModelWizard_description"));
+		newFileCreationPage.setFileName(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchEditorFilenameDefaultBase") + "." + FILE_EXTENSIONS.get(0));
 		addPage(newFileCreationPage);
 
 		// Try and get the resource selection to determine a current directory for the file dialog.
@@ -950,7 +602,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 
 					// Make up a unique new name here.
 					//
-					String defaultModelBaseFilename = Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicegenEditorFilenameDefaultBase");
+					String defaultModelBaseFilename = SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchEditorFilenameDefaultBase");
 					String defaultModelFilenameExtension = FILE_EXTENSIONS.get(0);
 					String modelFilename = defaultModelBaseFilename + "." + defaultModelFilenameExtension;
 					for (int i = 1; ((IContainer)selectedResource).findMember(modelFilename) != null; ++i) {
@@ -960,16 +612,10 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 				}
 			}
 		}
-		initialObjectCreationPage = new ServicegenModelWizardInitialObjectCreationPage("Whatever2");
-		initialObjectCreationPage.setTitle(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicegenModelWizard_label"));
-		initialObjectCreationPage.setDescription(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
+		initialObjectCreationPage = new SvcorchModelWizardInitialObjectCreationPage("Whatever2");
+		initialObjectCreationPage.setTitle(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchModelWizard_label"));
+		initialObjectCreationPage.setDescription(SvcorchEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
 		addPage(initialObjectCreationPage);
-		
-		
-		anaprodDataCreationPage = new ServicegenModelWizardAnaprodDataCreationPage("anaprodData");
-		anaprodDataCreationPage.setTitle("Dati identificazione del componente");
-		anaprodDataCreationPage.setDescription("Inserire i dati di identificazione del componente risultante come da specifiche ANAPROD");
-		addPage(anaprodDataCreationPage);
 	}
 
 	/**
@@ -981,11 +627,5 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	public IFile getModelFile() {
 		return newFileCreationPage.getModelFile();
 	}
-	
-	
-	//////
-	
-	//////
-	
 
 }

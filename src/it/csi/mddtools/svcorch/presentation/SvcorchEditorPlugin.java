@@ -4,13 +4,12 @@
  *
  * $Id$
  */
-package it.csi.mddtools.servicegen.presentation;
+package it.csi.mddtools.svcorch.presentation;
 
 import it.csi.mddtools.appresources.provider.Resources_metamodelEditPlugin;
 
 import it.csi.mddtools.servicedef.provider.Servicedef_metamodelEditPlugin;
 
-import it.csi.mddtools.svcorch.provider.SvcorchEditPlugin;
 import it.csi.mddtools.typedef.provider.Typedef_metamodelEditPlugin;
 
 import org.eclipse.emf.common.EMFPlugin;
@@ -20,19 +19,19 @@ import org.eclipse.emf.common.ui.EclipseUIPlugin;
 import org.eclipse.emf.common.util.ResourceLocator;
 
 /**
- * This is the central singleton for the Servicegen_metamodel editor plugin.
+ * This is the central singleton for the Svcorch editor plugin.
  * <!-- begin-user-doc -->
  * <!-- end-user-doc -->
  * @generated
  */
-public final class Servicegen_metamodelEditorPlugin extends EMFPlugin {
+public final class SvcorchEditorPlugin extends EMFPlugin {
 	/**
 	 * Keep track of the singleton.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public static final Servicegen_metamodelEditorPlugin INSTANCE = new Servicegen_metamodelEditorPlugin();
+	public static final SvcorchEditorPlugin INSTANCE = new SvcorchEditorPlugin();
 	
 	/**
 	 * Keep track of the singleton.
@@ -48,12 +47,11 @@ public final class Servicegen_metamodelEditorPlugin extends EMFPlugin {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Servicegen_metamodelEditorPlugin() {
+	public SvcorchEditorPlugin() {
 		super
 			(new ResourceLocator [] {
 				Resources_metamodelEditPlugin.INSTANCE,
 				Servicedef_metamodelEditPlugin.INSTANCE,
-				SvcorchEditPlugin.INSTANCE,
 				Typedef_metamodelEditPlugin.INSTANCE,
 			});
 	}

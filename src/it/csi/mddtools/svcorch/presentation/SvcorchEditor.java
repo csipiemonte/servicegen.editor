@@ -4,7 +4,7 @@
  *
  * $Id$
  */
-package it.csi.mddtools.appresources.presentation;
+package it.csi.mddtools.svcorch.presentation;
 
 
 import java.io.IOException;
@@ -157,20 +157,24 @@ import org.eclipse.emf.edit.ui.util.EditUIUtil;
 
 import org.eclipse.emf.edit.ui.view.ExtendedPropertySheetPage;
 
+import it.csi.mddtools.svcorch.provider.SvcorchItemProviderAdapterFactory;
+
 import it.csi.mddtools.appresources.provider.AppresourcesItemProviderAdapterFactory;
 
 import it.csi.mddtools.servicedef.provider.ServicedefItemProviderAdapterFactory;
+
 import it.csi.mddtools.typedef.provider.TypedefItemProviderAdapterFactory;
+
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 
 
 /**
- * This is an example of a Appresources model editor.
+ * This is an example of a Svcorch model editor.
  * <!-- begin-user-doc -->
  * <!-- end-user-doc -->
  * @generated
  */
-public class AppresourcesEditor
+public class SvcorchEditor
 	extends MultiPageEditorPart
 	implements IEditingDomainProvider, ISelectionProvider, IMenuListener, IViewerProvider, IGotoMarker {
 	/**
@@ -332,18 +336,18 @@ public class AppresourcesEditor
 			public void partActivated(IWorkbenchPart p) {
 				if (p instanceof ContentOutline) {
 					if (((ContentOutline)p).getCurrentPage() == contentOutlinePage) {
-						getActionBarContributor().setActiveEditor(AppresourcesEditor.this);
+						getActionBarContributor().setActiveEditor(SvcorchEditor.this);
 
 						setCurrentViewer(contentOutlineViewer);
 					}
 				}
 				else if (p instanceof PropertySheet) {
 					if (((PropertySheet)p).getCurrentPage() == propertySheetPage) {
-						getActionBarContributor().setActiveEditor(AppresourcesEditor.this);
+						getActionBarContributor().setActiveEditor(SvcorchEditor.this);
 						handleActivate();
 					}
 				}
-				else if (p == AppresourcesEditor.this) {
+				else if (p == SvcorchEditor.this) {
 					handleActivate();
 				}
 			}
@@ -506,7 +510,7 @@ public class AppresourcesEditor
 							getSite().getShell().getDisplay().asyncExec
 								(new Runnable() {
 									 public void run() {
-										 getSite().getPage().closeEditor(AppresourcesEditor.this, false);
+										 getSite().getPage().closeEditor(SvcorchEditor.this, false);
 									 }
 								 });
 						}
@@ -514,7 +518,7 @@ public class AppresourcesEditor
 
 					if (!visitor.getChangedResources().isEmpty()) {
 						changedResources.addAll(visitor.getChangedResources());
-						if (getSite().getPage().getActiveEditor() == AppresourcesEditor.this) {
+						if (getSite().getPage().getActiveEditor() == SvcorchEditor.this) {
 							getSite().getShell().getDisplay().asyncExec
 								(new Runnable() {
 									 public void run() {
@@ -525,7 +529,7 @@ public class AppresourcesEditor
 					}
 				}
 				catch (CoreException exception) {
-					Resources_metamodelEditorPlugin.INSTANCE.log(exception);
+					SvcorchEditorPlugin.INSTANCE.log(exception);
 				}
 			}
 		};
@@ -549,7 +553,7 @@ public class AppresourcesEditor
 
 		if (!removedResources.isEmpty()) {
 			if (handleDirtyConflict()) {
-				getSite().getPage().closeEditor(AppresourcesEditor.this, false);
+				getSite().getPage().closeEditor(SvcorchEditor.this, false);
 			}
 			else {
 				removedResources.clear();
@@ -641,7 +645,7 @@ public class AppresourcesEditor
 					showTabs();
 				}
 				catch (PartInitException exception) {
-					Resources_metamodelEditorPlugin.INSTANCE.log(exception);
+					SvcorchEditorPlugin.INSTANCE.log(exception);
 				}
 			}
 
@@ -652,7 +656,7 @@ public class AppresourcesEditor
 						markerHelper.createMarkers(diagnostic);
 					}
 					catch (CoreException exception) {
-						Resources_metamodelEditorPlugin.INSTANCE.log(exception);
+						SvcorchEditorPlugin.INSTANCE.log(exception);
 					}
 				}
 			}
@@ -679,7 +683,7 @@ public class AppresourcesEditor
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public AppresourcesEditor() {
+	public SvcorchEditor() {
 		super();
 		initializeEditingDomain();
 	}
@@ -696,6 +700,7 @@ public class AppresourcesEditor
 		adapterFactory = new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
 
 		adapterFactory.addAdapterFactory(new ResourceItemProviderAdapterFactory());
+		adapterFactory.addAdapterFactory(new SvcorchItemProviderAdapterFactory());
 		adapterFactory.addAdapterFactory(new AppresourcesItemProviderAdapterFactory());
 		adapterFactory.addAdapterFactory(new ServicedefItemProviderAdapterFactory());
 		adapterFactory.addAdapterFactory(new TypedefItemProviderAdapterFactory());
@@ -1017,7 +1022,7 @@ public class AppresourcesEditor
 			//
 			{
 				ViewerPane viewerPane =
-					new ViewerPane(getSite().getPage(), AppresourcesEditor.this) {
+					new ViewerPane(getSite().getPage(), SvcorchEditor.this) {
 						@Override
 						public Viewer createViewer(Composite composite) {
 							Tree tree = new Tree(composite, SWT.MULTI);
@@ -1051,7 +1056,7 @@ public class AppresourcesEditor
 			//
 			{
 				ViewerPane viewerPane =
-					new ViewerPane(getSite().getPage(), AppresourcesEditor.this) {
+					new ViewerPane(getSite().getPage(), SvcorchEditor.this) {
 						@Override
 						public Viewer createViewer(Composite composite) {
 							Tree tree = new Tree(composite, SWT.MULTI);
@@ -1080,7 +1085,7 @@ public class AppresourcesEditor
 			//
 			{
 				ViewerPane viewerPane =
-					new ViewerPane(getSite().getPage(), AppresourcesEditor.this) {
+					new ViewerPane(getSite().getPage(), SvcorchEditor.this) {
 						@Override
 						public Viewer createViewer(Composite composite) {
 							return new ListViewer(composite);
@@ -1105,7 +1110,7 @@ public class AppresourcesEditor
 			//
 			{
 				ViewerPane viewerPane =
-					new ViewerPane(getSite().getPage(), AppresourcesEditor.this) {
+					new ViewerPane(getSite().getPage(), SvcorchEditor.this) {
 						@Override
 						public Viewer createViewer(Composite composite) {
 							return new TreeViewer(composite);
@@ -1132,7 +1137,7 @@ public class AppresourcesEditor
 			//
 			{
 				ViewerPane viewerPane =
-					new ViewerPane(getSite().getPage(), AppresourcesEditor.this) {
+					new ViewerPane(getSite().getPage(), SvcorchEditor.this) {
 						@Override
 						public Viewer createViewer(Composite composite) {
 							return new TableViewer(composite);
@@ -1175,7 +1180,7 @@ public class AppresourcesEditor
 			//
 			{
 				ViewerPane viewerPane =
-					new ViewerPane(getSite().getPage(), AppresourcesEditor.this) {
+					new ViewerPane(getSite().getPage(), SvcorchEditor.this) {
 						@Override
 						public Viewer createViewer(Composite composite) {
 							return new TreeViewer(composite);
@@ -1396,8 +1401,8 @@ public class AppresourcesEditor
 				new ExtendedPropertySheetPage(editingDomain) {
 					@Override
 					public void setSelectionToViewer(List<?> selection) {
-						AppresourcesEditor.this.setSelectionToViewer(selection);
-						AppresourcesEditor.this.setFocus();
+						SvcorchEditor.this.setSelectionToViewer(selection);
+						SvcorchEditor.this.setFocus();
 					}
 
 					@Override
@@ -1518,7 +1523,7 @@ public class AppresourcesEditor
 		catch (Exception exception) {
 			// Something went wrong that shouldn't.
 			//
-			Resources_metamodelEditorPlugin.INSTANCE.log(exception);
+			SvcorchEditorPlugin.INSTANCE.log(exception);
 		}
 		updateProblemIndication = true;
 		updateProblemIndication();
@@ -1611,7 +1616,7 @@ public class AppresourcesEditor
 			}
 		}
 		catch (CoreException exception) {
-			Resources_metamodelEditorPlugin.INSTANCE.log(exception);
+			SvcorchEditorPlugin.INSTANCE.log(exception);
 		}
 	}
 
@@ -1733,7 +1738,7 @@ public class AppresourcesEditor
 	 * @generated
 	 */
 	private static String getString(String key) {
-		return Resources_metamodelEditorPlugin.INSTANCE.getString(key);
+		return SvcorchEditorPlugin.INSTANCE.getString(key);
 	}
 
 	/**
@@ -1743,7 +1748,7 @@ public class AppresourcesEditor
 	 * @generated
 	 */
 	private static String getString(String key, Object s1) {
-		return Resources_metamodelEditorPlugin.INSTANCE.getString(key, new Object [] { s1 });
+		return SvcorchEditorPlugin.INSTANCE.getString(key, new Object [] { s1 });
 	}
 
 	/**

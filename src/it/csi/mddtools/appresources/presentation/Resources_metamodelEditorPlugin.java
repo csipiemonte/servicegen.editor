@@ -6,6 +6,8 @@
  */
 package it.csi.mddtools.appresources.presentation;
 
+import it.csi.mddtools.servicedef.provider.Servicedef_metamodelEditPlugin;
+import it.csi.mddtools.typedef.provider.Typedef_metamodelEditPlugin;
 import org.eclipse.emf.common.EMFPlugin;
 
 import org.eclipse.emf.common.ui.EclipseUIPlugin;
@@ -44,6 +46,8 @@ public final class Resources_metamodelEditorPlugin extends EMFPlugin {
 	public Resources_metamodelEditorPlugin() {
 		super
 			(new ResourceLocator [] {
+				Servicedef_metamodelEditPlugin.INSTANCE,
+				Typedef_metamodelEditPlugin.INSTANCE,
 			});
 	}
 

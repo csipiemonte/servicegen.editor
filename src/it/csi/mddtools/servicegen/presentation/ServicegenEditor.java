@@ -163,6 +163,7 @@ import it.csi.mddtools.appresources.provider.AppresourcesItemProviderAdapterFact
 
 import it.csi.mddtools.servicedef.provider.ServicedefItemProviderAdapterFactory;
 
+import it.csi.mddtools.svcorch.provider.SvcorchItemProviderAdapterFactory;
 import it.csi.mddtools.typedef.provider.TypedefItemProviderAdapterFactory;
 
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
@@ -703,6 +704,7 @@ public class ServicegenEditor
 		adapterFactory.addAdapterFactory(new ServicegenItemProviderAdapterFactory());
 		adapterFactory.addAdapterFactory(new AppresourcesItemProviderAdapterFactory());
 		adapterFactory.addAdapterFactory(new ServicedefItemProviderAdapterFactory());
+		adapterFactory.addAdapterFactory(new SvcorchItemProviderAdapterFactory());
 		adapterFactory.addAdapterFactory(new TypedefItemProviderAdapterFactory());
 		adapterFactory.addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
 
