@@ -953,10 +953,10 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 		
 				Label label = new Label(composite, SWT.NULL);
 				label.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_RootModelFile_label"));
-				modelFileText = new Text(composite, SWT.BORDER | SWT.SINGLE);
+				rootModelFile = new Text(composite, SWT.BORDER | SWT.SINGLE);
 				GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-				modelFileText.setLayoutData(gd);
-				modelFileText.addModifyListener(new ModifyListener() {
+				rootModelFile.setLayoutData(gd);
+				rootModelFile.addModifyListener(new ModifyListener() {
 					public void modifyText(ModifyEvent e) {
 						dialogChanged();
 					}
@@ -1033,7 +1033,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 					updateStatus("Occorre specificare il percorso del file che contiene il modello principale");
 					return;
 				}
-				if (!fileName.endsWith(".servicedef")){
+				if (!fileName.endsWith(".servicegen")){
 					updateStatus("Il file che contiene il modello principale deve avere l'estensione 'servicegen'");
 					return;
 				}
