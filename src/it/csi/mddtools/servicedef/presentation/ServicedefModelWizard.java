@@ -55,19 +55,24 @@ import org.eclipse.swt.SWT;
 
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 
+import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 
 import org.eclipse.ui.part.FileEditorInput;
@@ -76,6 +81,9 @@ import org.eclipse.ui.part.ISetSelectionTarget;
 import it.csi.mddtools.servicedef.ServicedefFactory;
 import it.csi.mddtools.servicedef.ServicedefPackage;
 import it.csi.mddtools.servicedef.provider.Servicedef_metamodelEditPlugin;
+import it.csi.mddtools.servicegen.presentation.CommonFilesLocChooserWizardPage;
+import it.csi.mddtools.servicegen.presentation.Servicegen_metamodelEditorPlugin;
+import it.csi.mddtools.servicegen.provider.Servicegen_metamodelEditPlugin;
 
 
 import org.eclipse.core.runtime.Path;
@@ -146,6 +154,11 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 */
 	protected ServicedefModelWizardInitialObjectCreationPage initialObjectCreationPage;
 
+	
+	protected CommonFilesLocChooserWizardPage commonFilesPage;
+	
+	protected ServicedefModelWizardServiceInfoCreationPage serviceInfoPage;
+	
 	/**
 	 * Remember the selection during initialization for populating the default container.
 	 * <!-- begin-user-doc -->
@@ -170,6 +183,8 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 */
 	protected List<String> initialObjectNames;
 
+	private ServicedefModelWizardFileRefsCreationPage serviceFileRefsPage;
+
 	/**
 	 * This just records the information.
 	 * <!-- begin-user-doc -->
@@ -187,7 +202,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 * Returns the names of the types that can be created as the root object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	protected Collection<String> getInitialObjectNames() {
 		if (initialObjectNames == null) {
@@ -195,7 +210,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 			for (EClassifier eClassifier : servicedefPackage.getEClassifiers()) {
 				if (eClassifier instanceof EClass) {
 					EClass eClass = (EClass)eClassifier;
-					if (!eClass.isAbstract()) {
+					if (!eClass.isAbstract()&& canCreate(eClass)) {
 						initialObjectNames.add(eClass.getName());
 					}
 				}
@@ -203,6 +218,13 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 			Collections.sort(initialObjectNames, CommonPlugin.INSTANCE.getComparator());
 		}
 		return initialObjectNames;
+	}
+
+	protected boolean canCreate(EClass cl){
+		if (cl.getName().equals("ServiceDef"))
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -564,10 +586,589 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	}
 
 	/**
+		 * This is the page where the type of object to create is selected.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated NOT
+		 */
+		public class ServicedefModelWizardServiceInfoCreationPage extends WizardPage {
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected org.eclipse.swt.widgets.Text codServizio;
+			
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected Combo tipoServizio;
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected org.eclipse.swt.widgets.Text verServizio;
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected org.eclipse.swt.widgets.Text dummyNethodName;
+		
+			/**
+			 * Pass in the selection.
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public ServicedefModelWizardServiceInfoCreationPage(String pageId) {
+				super(pageId);
+			}
+		
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public String getCodServizio() {
+				String txt = codServizio.getText();
+				if (txt==null || txt.length()==0)
+					return null;
+				else
+					return txt;
+			}
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public String getTipoServizio() {
+				String txt = tipoServizio.getText();
+				if (txt==null || txt.length()==0)
+					return null;
+				else
+					return txt;
+			}
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public String getVerServizio() {
+				String txt = verServizio.getText();
+				if (txt==null || txt.length()==0)
+					return null;
+				else
+					return txt;
+			}
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public String getDummyNethodName() {
+				String txt = dummyNethodName.getText();
+				if (txt==null || txt.length()==0)
+					return null;
+				else
+					return txt;
+			}
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public void createControl(Composite parent) {
+				Composite composite = new Composite(parent, SWT.NONE);
+				{
+					GridLayout layout = new GridLayout();
+					layout.numColumns = 1;
+					layout.verticalSpacing = 12;
+					composite.setLayout(layout);
+		
+					GridData data = new GridData();
+					data.verticalAlignment = GridData.FILL;
+					data.grabExcessVerticalSpace = true;
+					data.horizontalAlignment = GridData.FILL;
+					composite.setLayoutData(data);
+				}
+		
+				Label codProdottoLabel = new Label(composite, SWT.LEFT);
+				{
+					codProdottoLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_CodServizio_label"));
+		
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					codProdottoLabel.setLayoutData(data);
+				}
+		
+				codServizio = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
+				{
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					data.grabExcessHorizontalSpace = true;
+					codServizio.setLayoutData(data);
+					codServizio.addModifyListener(validator);
+				}
+				
+				Label verProdottoLabel = new Label(composite, SWT.LEFT);
+				{
+					verProdottoLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_VerServizio_label"));
+		
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					verProdottoLabel.setLayoutData(data);
+				}
+				
+				verServizio = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
+				{
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					data.grabExcessHorizontalSpace = true;
+					verServizio.setLayoutData(data);
+					verServizio.addModifyListener(validator);
+				}
+				
+				Label codComponenteLabel = new Label(composite, SWT.LEFT);
+				{
+					codComponenteLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_TipoServizio_label"));
+		
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					codComponenteLabel.setLayoutData(data);
+				}
+				
+				tipoServizio = new Combo(composite, SWT.BORDER);
+				{
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					data.grabExcessHorizontalSpace = true;
+					tipoServizio.setLayoutData(data);
+				}
+		
+				tipoServizio.add("Servizio applicativo");
+				tipoServizio.add("Servizio di orchestrazione");
+				tipoServizio.add("Servizio infrastrutturale");
+				
+				if (tipoServizio.getItemCount() == 1) {
+					tipoServizio.select(0);
+				}
+				//tipoServizio.addModifyListener(validator);
+				
+				Label verComponenteLabel = new Label(composite, SWT.LEFT);
+				{
+					verComponenteLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_DummyMethodName_label"));
+		
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					verComponenteLabel.setLayoutData(data);
+				}
+				
+				dummyNethodName = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
+				{
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					data.grabExcessHorizontalSpace = true;
+					dummyNethodName.setLayoutData(data);
+					dummyNethodName.addModifyListener(validator);
+				}
+				
+				setPageComplete(validatePage());
+				setControl(composite);
+			}
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected ModifyListener validator =
+				new ModifyListener() {
+					public void modifyText(ModifyEvent e) {
+						setPageComplete(validatePage());
+					}
+				};
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected boolean validatePage() {
+				//return getInitialObjectName() != null && getEncodings().contains(encodingField.getText());
+				return getCodServizio()!=null && getTipoServizio()!=null&&
+				getVerServizio()!=null && getDummyNethodName()!=null;
+			}
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			@Override
+			public void setVisible(boolean visible) {
+				super.setVisible(visible);
+				if (visible) {
+	//				if (initialObjectField.getItemCount() == 1) {
+	//					initialObjectField.clearSelection();
+	//					encodingField.setFocus();
+	//				}
+	//				else {
+	//					encodingField.clearSelection();
+	//					initialObjectField.setFocus();
+	//				}
+				}
+			}
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+	//		public String getInitialObjectName() {
+	//			String label = initialObjectField.getText();
+	//	
+	//			for (String name : getInitialObjectNames()) {
+	//				if (getLabel(name).equals(label)) {
+	//					return name;
+	//				}
+	//			}
+	//			return null;
+	//		}
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+	//		public String getEncoding() {
+	//			return encodingField.getText();
+	//		}
+		
+			/**
+			 * Returns the label for the specified type name.
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected String getLabel(String typeName) {
+				try {
+					return Servicegen_metamodelEditPlugin.INSTANCE.getString("_UI_" + typeName + "_type");
+				}
+				catch(MissingResourceException mre) {
+					Servicegen_metamodelEditorPlugin.INSTANCE.log(mre);
+				}
+				return typeName;
+			}
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+	//		protected Collection<String> getEncodings() {
+	//			if (encodings == null) {
+	//				encodings = new ArrayList<String>();
+	//				for (StringTokenizer stringTokenizer = new StringTokenizer(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_XMLEncodingChoices")); stringTokenizer.hasMoreTokens(); ) {
+	//					encodings.add(stringTokenizer.nextToken());
+	//				}
+	//			}
+	//			return encodings;
+	//		}
+		}
+
+	/**
+		 * This is the page where the type of object to create is selected.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated NOT
+		 */
+		public class ServicedefModelWizardFileRefsCreationPage extends WizardPage {
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected org.eclipse.swt.widgets.Text rootModelFile;
+			private Text modelFileText;
+			private String modelFileName;
+			
+			
+			/**
+			 * Pass in the selection.
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public ServicedefModelWizardFileRefsCreationPage(String pageId) {
+				super(pageId);
+			}
+		
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public String getRootModelFile() {
+				String txt = rootModelFile.getText();
+				if (txt==null || txt.length()==0)
+					return null;
+				else
+					return txt;
+			}
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public void createControl(Composite parent) {
+				Composite composite = new Composite(parent, SWT.NONE);
+				{
+					GridLayout layout = new GridLayout();
+					layout.numColumns = 1;
+					layout.verticalSpacing = 12;
+					composite.setLayout(layout);
+		
+					GridData data = new GridData();
+					data.verticalAlignment = GridData.FILL;
+					data.grabExcessVerticalSpace = true;
+					data.horizontalAlignment = GridData.FILL;
+					composite.setLayoutData(data);
+				}
+		
+				Label label = new Label(composite, SWT.NULL);
+				label.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_RootModelFile_label"));
+				modelFileText = new Text(composite, SWT.BORDER | SWT.SINGLE);
+				GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+				modelFileText.setLayoutData(gd);
+				modelFileText.addModifyListener(new ModifyListener() {
+					public void modifyText(ModifyEvent e) {
+						dialogChanged();
+					}
+				});
+				Button button = new Button(composite, SWT.PUSH);
+				button.setText("Browse...");
+				button.addSelectionListener(new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent e) {
+						handleRootModelFileBrowse();
+					}
+				});
+				
+				
+//				Label codProdottoLabel = new Label(composite, SWT.LEFT);
+//				{
+//					codProdottoLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_RootModelFile_label"));
+//		
+//					GridData data = new GridData();
+//					data.horizontalAlignment = GridData.FILL;
+//					codProdottoLabel.setLayoutData(data);
+//				}
+//		
+//				rootModelFile = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
+//				{
+//					GridData data = new GridData();
+//					data.horizontalAlignment = GridData.FILL;
+//					data.grabExcessHorizontalSpace = true;
+//					rootModelFile.setLayoutData(data);
+//					rootModelFile.addModifyListener(validator);
+//				}
+				
+				
+				
+				
+				
+				
+				setPageComplete(validatePage());
+				setControl(composite);
+			}
+		
+			private void handleRootModelFileBrowse() {
+//				org.eclipse.swt.widgets.FileDialog dialog = new org.eclipse.swt.widgets.FileDialog(
+//						getShell());
+				ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), ResourcesPlugin.getWorkspace().getRoot(), "Scegliere file del modello principale");
+				if (dialog.open() == ResourceSelectionDialog.OK) {
+					Object[] result = dialog.getResult();
+					if (result.length >0 && result[0] instanceof IFile) {
+						String modelFileSelected = ((IFile) result[0]).getFullPath().toString(); 
+						rootModelFile.setText(modelFileSelected);
+					}
+				}
+				//modelFileText.setText(dialog.open());
+			}
+			
+			private void dialogChanged() {
+//				IResource container = ResourcesPlugin.getWorkspace().getRoot()
+//						.findMember(new Path(getCommonFilesContainerName()));
+				modelFileName=modelFileText.getText();
+				
+				String fileName = getRootModelFile();
+
+				
+				
+//				IResource commonAppdataRes = ResourcesPlugin.getWorkspace().getRoot()
+//				.findMember(new Path(getCommonFilesContainerName()+"/"+"commonAppdata.guigen"));
+//				
+//				if (commonTNSRes==null || commonAppdataRes==null || !commonTNSRes.exists() || !commonAppdataRes.exists()){
+//					updateStatus("La cartella specificata deve contenere i file [commonTNS.guigen] e [commonAppdata.guigen]");
+//					return;
+//				}
+				
+				//// controlli sul model file
+				if (fileName.length() == 0) {
+					updateStatus("Occorre specificare il percorso del file che contiene il modello principale");
+					return;
+				}
+				if (!fileName.endsWith(".servicedef")){
+					updateStatus("Il file che contiene il modello principale deve avere l'estensione 'servicegen'");
+					return;
+				}
+				IResource modelFile = ResourcesPlugin.getWorkspace().getRoot()
+					.findMember(new Path(getRootModelFile()));
+				if (!modelFile.exists()){
+					updateStatus("Il file che contiene il modello principale deve esistere");
+					return;
+				}
+				
+//				if (fileName.replace('\\', '/').indexOf('/', 1) > 0) {
+//					updateStatus("File name must be valid");
+//					return;
+//				}
+				int dotLoc = fileName.lastIndexOf('.');
+				if (dotLoc != -1) {
+					String ext = fileName.substring(dotLoc + 1);
+					if (ext.equalsIgnoreCase("servicegen") == false) {
+						updateStatus("File extension must be \"servicegen\"");
+						return;
+					}
+				}
+				
+				updateStatus(null);
+			}
+
+			private void updateStatus(String message) {
+				setErrorMessage(message);
+				setPageComplete(message == null);
+			}
+			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected ModifyListener validator =
+				new ModifyListener() {
+					public void modifyText(ModifyEvent e) {
+						setPageComplete(validatePage());
+					}
+				};
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected boolean validatePage() {
+				//return getInitialObjectName() != null && getEncodings().contains(encodingField.getText());
+				return true; // TODO
+			}
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			@Override
+			public void setVisible(boolean visible) {
+				super.setVisible(visible);
+				if (visible) {
+	//				if (initialObjectField.getItemCount() == 1) {
+	//					initialObjectField.clearSelection();
+	//					encodingField.setFocus();
+	//				}
+	//				else {
+	//					encodingField.clearSelection();
+	//					initialObjectField.setFocus();
+	//				}
+				}
+			}
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+	//		public String getInitialObjectName() {
+	//			String label = initialObjectField.getText();
+	//	
+	//			for (String name : getInitialObjectNames()) {
+	//				if (getLabel(name).equals(label)) {
+	//					return name;
+	//				}
+	//			}
+	//			return null;
+	//		}
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+	//		public String getEncoding() {
+	//			return encodingField.getText();
+	//		}
+		
+			/**
+			 * Returns the label for the specified type name.
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			protected String getLabel(String typeName) {
+				try {
+					return Servicegen_metamodelEditPlugin.INSTANCE.getString("_UI_" + typeName + "_type");
+				}
+				catch(MissingResourceException mre) {
+					Servicegen_metamodelEditorPlugin.INSTANCE.log(mre);
+				}
+				return typeName;
+			}
+		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+	//		protected Collection<String> getEncodings() {
+	//			if (encodings == null) {
+	//				encodings = new ArrayList<String>();
+	//				for (StringTokenizer stringTokenizer = new StringTokenizer(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_XMLEncodingChoices")); stringTokenizer.hasMoreTokens(); ) {
+	//					encodings.add(stringTokenizer.nextToken());
+	//				}
+	//			}
+	//			return encodings;
+	//		}
+		}
+
+	/**
 	 * The framework calls this to create the contents of the wizard.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 		@Override
 	public void addPages() {
@@ -616,6 +1217,23 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 		initialObjectCreationPage.setTitle(Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicedefModelWizard_label"));
 		initialObjectCreationPage.setDescription(Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
 		addPage(initialObjectCreationPage);
+		
+		commonFilesPage = new CommonFilesLocChooserWizardPage(selection);
+		commonFilesPage.setTitle("Cartella file comuni");
+		commonFilesPage.setDescription("Selezionare la cartella contenente i file \"commonTNS.guigen\" e \"commonAppdata.guigen\"");
+		addPage(commonFilesPage);
+		
+		serviceFileRefsPage = new ServicedefModelWizardFileRefsCreationPage("file_refs");
+		serviceFileRefsPage.setTitle("Riferimenti a file");
+		serviceFileRefsPage.setDescription("Inserire i riferimenti ai file referenziati");
+		addPage(serviceFileRefsPage);
+		
+		serviceInfoPage = new ServicedefModelWizardServiceInfoCreationPage("service_info");
+		serviceInfoPage.setTitle("Informazioni del servizio");
+		serviceInfoPage.setDescription("Inserire le informazioni principali del servizio da creare (identificativi, tipologia, ...)");
+		addPage(serviceInfoPage);
+		
+		
 	}
 
 	/**

@@ -163,7 +163,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 */
 	protected ServicegenModelWizardAnaprodDataCreationPage anaprodDataCreationPage;
 	
-	protected CommonFilesLocChooserWizardPage commonFilesPage;
+//	protected CommonFilesLocChooserWizardPage commonFilesPage;
 	
 	/**
 	 * Remember the selection during initialization for populating the default container.
