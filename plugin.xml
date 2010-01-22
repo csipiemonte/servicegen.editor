@@ -27,6 +27,22 @@
             id="servicegen.editor.newwizards"
             name="Servicegen wizards">
       </category>
+      <wizard
+            category="servicegen.editor.newwizards"
+            class="it.csi.mddtools.servicegen.presentation.CommonFilesNewWizard"
+            icon="icons/full/obj16/ServicegenModelFile.gif"
+            id="it.csi.mddtools.servicegen.presentation.CommonFilesNewWizard"
+            name="Librerie standard per modelli SERVICEGEN">
+         <selection
+               class="org.eclipse.core.resources.IResource">
+         </selection>
+         <description>
+            Crea i files di &quot;libreria&quot; utilizzati dai modelli SERVICEGEN:
+- basetypes.typedef: contiene la definizione dei tipi base utilizzabili nella definizione delle interfacce e nella implementazione dei servizi
+
+Questo file devono essere importati come risorsa nei modelli che referenziano i tipi.
+         </description>
+      </wizard>
    </extension>
 
    <extension point="org.eclipse.ui.editors">
