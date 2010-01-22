@@ -18,11 +18,15 @@
             id="it.csi.mddtools.servicegen.presentation.ServicegenModelWizardID"
             name="%_UI_ServicegenModelWizard_label"
             class="it.csi.mddtools.servicegen.presentation.ServicegenModelWizard"
-            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            category="servicegen.editor.newwizards"
             icon="icons/full/obj16/ServicegenModelFile.gif">
          <description>%_UI_ServicegenModelWizard_description</description>
          <selection class="org.eclipse.core.resources.IResource"/>
       </wizard>
+      <category
+            id="servicegen.editor.newwizards"
+            name="Servicegen wizards">
+      </category>
    </extension>
 
    <extension point="org.eclipse.ui.editors">
@@ -42,7 +46,7 @@
             name="%_UI_Wizard_category">
       </category>
       <wizard
-            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            category="servicegen.editor.newwizards"
             class="it.csi.mddtools.svcorch.presentation.SvcorchModelWizard"
             icon="icons/full/obj16/SvcorchModelFile.gif"
             id="it.csi.mddtools.svcorch.presentation.SvcorchModelWizardID"
@@ -54,6 +58,10 @@
                class="org.eclipse.core.resources.IResource">
          </selection>
       </wizard>
+      <category
+            id="servicegen.editor.newwizards"
+            name="Servicegen wizards">
+      </category>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
@@ -73,7 +81,7 @@
             name="%_UI_Wizard_category">
       </category>
       <wizard
-            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            category="servicegen.editor.newwizards"
             class="it.csi.mddtools.appresources.presentation.AppresourcesModelWizard"
             icon="icons/full/obj16/AppresourcesModelFile.gif"
             id="it.csi.mddtools.appresources.presentation.AppresourcesModelWizardID"
@@ -85,6 +93,10 @@
                class="org.eclipse.core.resources.IResource">
          </selection>
       </wizard>
+      <category
+            id="servicegen.editor.newwizards"
+            name="Servicegen wizards">
+      </category>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
@@ -104,7 +116,7 @@
             name="%_UI_Wizard_category">
       </category>
       <wizard
-            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            category="servicegen.editor.newwizards"
             class="it.csi.mddtools.servicedef.presentation.ServicedefModelWizard"
             icon="icons/full/obj16/ServicedefModelFile.gif"
             id="it.csi.mddtools.servicedef.presentation.ServicedefModelWizardID"
@@ -116,6 +128,10 @@
                class="org.eclipse.core.resources.IResource">
          </selection>
       </wizard>
+      <category
+            id="servicegen.editor.newwizards"
+            name="Servicegen wizards">
+      </category>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
