@@ -36,6 +36,7 @@ public class CommonFilesLocChooserWizardPage extends WizardPage {
 	
 	private ISelection selection;
 
+	private static final String BASETYPES_RES_NAME = "basetypes.servicegen";
 	/**
 	 * Constructor for SampleNewWizardPage.
 	 * 
@@ -44,7 +45,7 @@ public class CommonFilesLocChooserWizardPage extends WizardPage {
 	public CommonFilesLocChooserWizardPage(ISelection selection) {
 		super("wizardPage");
 		setTitle("Selezione risorse comuni");
-		setDescription("Selezionare la posizione dei file di risorse comuni (TypeNamespace e AppData) che saranno utilizzati nel modello");
+		setDescription("Selezionare la posizione dei file di risorse comuni (basetypes) che saranno utilizzati nel modello");
 		this.selection = selection;
 	}
 
@@ -130,7 +131,7 @@ public class CommonFilesLocChooserWizardPage extends WizardPage {
 //				getShell(), ResourcesPlugin.getWorkspace().getRoot(), "Seleziona il file commmonTNS");
 		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
 				getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
-				"Seleziona il folder che contiene i file [commonTNS.guigen] e [commonAppdata.guigen] (devono essere già presenti)");
+				"Seleziona il folder che contiene il file ["+BASETYPES_RES_NAME+"] (deve essere già presente)");
 		if (dialog.open() == ContainerSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
@@ -156,7 +157,7 @@ public class CommonFilesLocChooserWizardPage extends WizardPage {
 		//String fileName = getFileName();
 
 		if (getCommonContainerName().length() == 0) {
-			updateStatus("Specificare il nome del file commonTNS");
+			updateStatus("Specificare il nome del file "+BASETYPES_RES_NAME);
 			return;
 		}
 		if (_commonContainer == null
@@ -170,19 +171,14 @@ public class CommonFilesLocChooserWizardPage extends WizardPage {
 		}
 		
 		IResource _commonTNS = ResourcesPlugin.getWorkspace().getRoot()
-			.findMember(new Path(getCommonContainerName()+"/commonTNS.guigen"));
+			.findMember(new Path(getCommonContainerName()+"/"+BASETYPES_RES_NAME));
 		
-		IResource _commonAppdata = ResourcesPlugin.getWorkspace().getRoot()
-			.findMember(new Path(getCommonContainerName()+"/commonAppdata.guigen"));
 		
 		if (_commonTNS == null){
-			updateStatus("Il file [commonTNS.guigen] deve esistere");
+			updateStatus("Il file ["+BASETYPES_RES_NAME+"] deve esistere");
 			return;	
 		}
-		if (_commonAppdata == null){
-			updateStatus("Il file [commonAppdata.guigen] deve esistere");
-			return;	
-		}
+		
 //		if (fileName.length() == 0) {
 //			updateStatus("File name must be specified");
 //			return;

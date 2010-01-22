@@ -73,6 +73,8 @@ import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.ISetSelectionTarget;
 
+import it.csi.mddtools.appresources.AppresourcesFactory;
+import it.csi.mddtools.servicegen.presentation.CommonFilesLocChooserWizardPage;
 import it.csi.mddtools.servicegen.BaseTypes;
 import it.csi.mddtools.servicegen.SOABEModel;
 import it.csi.mddtools.servicegen.ServicegenFactory;
@@ -99,6 +101,9 @@ import org.eclipse.ui.PartInitException;
  * @generated
  */
 public class ServicegenModelWizard extends Wizard implements INewWizard {
+	
+	private static final String BASETYPES_RES_NAME = "basetypes.servicegen";
+	
 	/**
 	 * The supported extensions for created files.
 	 * <!-- begin-user-doc -->
@@ -158,6 +163,8 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 */
 	protected ServicegenModelWizardAnaprodDataCreationPage anaprodDataCreationPage;
 	
+	protected CommonFilesLocChooserWizardPage commonFilesPage;
+	
 	/**
 	 * Remember the selection during initialization for populating the default container.
 	 * <!-- begin-user-doc -->
@@ -199,7 +206,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * Returns the names of the types that can be created as the root object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	protected Collection<String> getInitialObjectNames() {
 		if (initialObjectNames == null) {
@@ -207,7 +214,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 			for (EClassifier eClassifier : servicegenPackage.getEClassifiers()) {
 				if (eClassifier instanceof EClass) {
 					EClass eClass = (EClass)eClassifier;
-					if (!eClass.isAbstract()) {
+					if (!eClass.isAbstract()&& canCreate(eClass)) {
 						initialObjectNames.add(eClass.getName());
 					}
 				}
@@ -215,6 +222,13 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 			Collections.sort(initialObjectNames, CommonPlugin.INSTANCE.getComparator());
 		}
 		return initialObjectNames;
+	}
+
+	protected boolean canCreate(EClass cl){
+		if (cl.getName().equals("SOABEModel"))
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -227,31 +241,34 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 		EClass eClass = (EClass)servicegenPackage.getEClassifier(initialObjectCreationPage.getInitialObjectName());
 		EObject rootObject = servicegenFactory.create(eClass);
 		
-		// se la classe scelta è la root inizializzo il file con l'insieme dei tipi base CSI e i codici anaprod
-		if (initialObjectCreationPage.getInitialObjectName().indexOf("SOABEModel")!=-1){
+		
+		if (initialObjectCreationPage.getInitialObjectName().indexOf("SOABEModel")==-1)
+			throw new IllegalArgumentException("wizard ServicegenModelWizard supporta solo SOABEModel");
+		{
 			// crea tipi base
-			Type [] baseCSITypes = it.csi.mddtools.servicegen.genutils.CodeGenerationUtils.generateCSIBaseTypes();
+//			Type [] baseCSITypes = it.csi.mddtools.servicegen.genutils.CodeGenerationUtils.generateCSIBaseTypes();
 			SOABEModel model = (SOABEModel)rootObject;
-			BaseTypes baseTypesContainer = servicegenFactory.createBaseTypes();
-			model.getBaseTypes().add(baseTypesContainer);
-			for (int i = 0; i < baseCSITypes.length; i++) {
-				baseTypesContainer.getBaseTypes().add(baseCSITypes[i]);
-			}
+//			BaseTypes baseTypesContainer = servicegenFactory.createBaseTypes();
+//			model.getBaseTypes().add(baseTypesContainer);
+//			for (int i = 0; i < baseCSITypes.length; i++) {
+//				baseTypesContainer.getBaseTypes().add(baseCSITypes[i]);
+//			}
 			// codici anaprod
 			model.setCodProdotto(anaprodDataCreationPage.getCodProdotto());
 			model.setCodComponente(anaprodDataCreationPage.getCodComponente());
 			model.setVersioneProdotto(anaprodDataCreationPage.getVerProdotto());
 			model.setVersioneComponente(anaprodDataCreationPage.getVerComponente());
+			
 		}
 		// se la classe è BaseTypes creo un modello di tipi base
-		else if (initialObjectCreationPage.getInitialObjectName().indexOf("BaseTypes")!=-1){
-			// crea tipi base
-			Type [] baseCSITypes = it.csi.mddtools.servicegen.genutils.CodeGenerationUtils.generateCSIBaseTypes();
-			BaseTypes model = (BaseTypes)rootObject;
-			for (int i = 0; i < baseCSITypes.length; i++) {
-				model.getBaseTypes().add(baseCSITypes[i]);
-			}
-		}
+//		else if (initialObjectCreationPage.getInitialObjectName().indexOf("BaseTypes")!=-1){
+//			// crea tipi base
+//			Type [] baseCSITypes = it.csi.mddtools.servicegen.genutils.CodeGenerationUtils.generateCSIBaseTypes();
+//			BaseTypes model = (BaseTypes)rootObject;
+//			for (int i = 0; i < baseCSITypes.length; i++) {
+//				model.getBaseTypes().add(baseCSITypes[i]);
+//			}
+//		}
 		return rootObject;
 	}
 
@@ -282,23 +299,33 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 							// Get the URI of the model file.
 							//
 							URI fileURI = URI.createPlatformResourceURI(modelFile.getFullPath().toString(), true);
-
+							URI appresourcesFileURI = URI.createPlatformResourceURI(modelFile.getFullPath().removeLastSegments(1).toString()+"/"+modelFile.getName()+".appresources", true);
+							
 							// Create a resource for this file.
 							//
 							Resource resource = resourceSet.createResource(fileURI);
-
+							Resource appresourcesResource = resourceSet.createResource(appresourcesFileURI);
 							// Add the initial model object to the contents.
 							//
 							EObject rootObject = createInitialModel();
 							if (rootObject != null) {
 								resource.getContents().add(rootObject);
 							}
-
+							
+							
+							it.csi.mddtools.appresources.ResourceSet appresources = AppresourcesFactory.eINSTANCE.createResourceSet();
+							
+							SOABEModel soabe = (SOABEModel)rootObject;
+							soabe.setResourceSet(appresources);
+							
+							appresourcesResource.getContents().add(appresources);
+							
 							// Save the contents of the resource to the file system.
 							//
 							Map<Object, Object> options = new HashMap<Object, Object>();
 							options.put(XMLResource.OPTION_ENCODING, initialObjectCreationPage.getEncoding());
 							resource.save(options);
+							appresourcesResource.save(options);
 						}
 						catch (Exception exception) {
 							Servicegen_metamodelEditorPlugin.INSTANCE.log(exception);
@@ -970,6 +997,12 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 		anaprodDataCreationPage.setTitle("Dati identificazione del componente");
 		anaprodDataCreationPage.setDescription("Inserire i dati di identificazione del componente risultante come da specifiche ANAPROD");
 		addPage(anaprodDataCreationPage);
+	
+		// TODO per ora non è utilizzato => commento
+//		commonFilesPage = new CommonFilesLocChooserWizardPage(selection);
+//		commonFilesPage.setTitle("Cartella file comuni");
+//		commonFilesPage.setDescription("Selezionare la cartella contenente i file \"commonTNS.guigen\" e \"commonAppdata.guigen\"");
+//		addPage(commonFilesPage);
 	}
 
 	/**
