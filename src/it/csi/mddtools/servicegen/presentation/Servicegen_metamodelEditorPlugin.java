@@ -111,7 +111,7 @@ public final class Servicegen_metamodelEditorPlugin extends EMFPlugin {
 		}
 		
 		private static final String PLUGIN_NAME = "servicegen";
-		private static final String PLUGIN_VERSION = "1.1.0.001";
+		private static final String PLUGIN_VERSION = "1.1.0.002";
 		
 		/**
 		 * @generated NOT
