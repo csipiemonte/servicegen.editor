@@ -11,6 +11,7 @@ import java.util.Properties;
 import it.csi.mddtools.appresources.provider.Resources_metamodelEditPlugin;
 
 import it.csi.mddtools.servicedef.provider.Servicedef_metamodelEditPlugin;
+import it.csi.mddtools.servicegen.genutils.MiscUtils;
 
 import it.csi.mddtools.svcorch.provider.SvcorchEditPlugin;
 import it.csi.mddtools.typedef.provider.Typedef_metamodelEditPlugin;
@@ -110,14 +111,12 @@ public final class Servicegen_metamodelEditorPlugin extends EMFPlugin {
 			manageTracking();
 		}
 		
-		private static final String PLUGIN_NAME = "servicegen";
-		private static final String PLUGIN_VERSION = "1.1.0.002";
 		
 		/**
 		 * @generated NOT
 		 */
 		public static void manageTracking(){
-			Properties packet = mddtools.usagetracking.ProfilingPacketBuilder.packStartupInfo(PLUGIN_NAME, PLUGIN_VERSION);
+			Properties packet = mddtools.usagetracking.ProfilingPacketBuilder.packStartupInfo(MiscUtils.getPluginName(), MiscUtils.getPluginVersion());
 			packet.list(System.out);
 			String whoName = packet.getProperty(ProfilingPacketBuilder.P_WHO_NAME);
 			if (whoName == null || whoName.length()==0){
