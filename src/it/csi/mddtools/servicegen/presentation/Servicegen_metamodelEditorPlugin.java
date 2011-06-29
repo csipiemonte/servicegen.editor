@@ -115,17 +115,21 @@ public final class Servicegen_metamodelEditorPlugin extends EMFPlugin {
 		/**
 		 * @generated NOT
 		 */
-		public static void manageTracking(){
-			Properties packet = mddtools.usagetracking.ProfilingPacketBuilder.packStartupInfo(MiscUtils.getPluginName(), MiscUtils.getPluginVersion());
-			packet.list(System.out);
-			String whoName = packet.getProperty(ProfilingPacketBuilder.P_WHO_NAME);
-			if (whoName == null || whoName.length()==0){
-				//ask for registration
-				// TODO
-				System.out.println("ask for registration");
-			}
-			else{
-				TrackingSender.sendTrackingInfo(packet);
+		public static void manageTracking() {
+			if (TrackingSender.isTrackingActive()) {
+				Properties packet = mddtools.usagetracking.ProfilingPacketBuilder
+						.packStartupInfo(MiscUtils.getPluginName(),
+								MiscUtils.getPluginVersion());
+				packet.list(System.out);
+				String whoName = packet
+						.getProperty(ProfilingPacketBuilder.P_WHO_NAME);
+				if (whoName == null || whoName.length() == 0) {
+					// ask for registration
+					// TODO
+					System.out.println("ask for registration");
+				} else {
+					TrackingSender.sendTrackingInfo(packet);
+				}
 			}
 		}
 
