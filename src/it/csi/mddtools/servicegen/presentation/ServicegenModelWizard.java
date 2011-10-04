@@ -313,33 +313,23 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 							// Get the URI of the model file.
 							//
 							URI fileURI = URI.createPlatformResourceURI(modelFile.getFullPath().toString(), true);
-							URI appresourcesFileURI = URI.createPlatformResourceURI(modelFile.getFullPath().removeLastSegments(1).toString()+"/"+modelFile.getName()+".appresources", true);
-							
+
 							// Create a resource for this file.
 							//
 							Resource resource = resourceSet.createResource(fileURI);
-							Resource appresourcesResource = resourceSet.createResource(appresourcesFileURI);
+
 							// Add the initial model object to the contents.
 							//
 							EObject rootObject = createInitialModel();
 							if (rootObject != null) {
 								resource.getContents().add(rootObject);
 							}
-							
-							
-							it.csi.mddtools.appresources.ResourceSet appresources = AppresourcesFactory.eINSTANCE.createResourceSet();
-							
-							SOABEModel soabe = (SOABEModel)rootObject;
-							soabe.setResourceSet(appresources);
-							
-							appresourcesResource.getContents().add(appresources);
-							
+
 							// Save the contents of the resource to the file system.
 							//
 							Map<Object, Object> options = new HashMap<Object, Object>();
 							options.put(XMLResource.OPTION_ENCODING, initialObjectCreationPage.getEncoding());
 							resource.save(options);
-							appresourcesResource.save(options);
 						}
 						catch (Exception exception) {
 							Servicegen_metamodelEditorPlugin.INSTANCE.log(exception);
@@ -372,7 +362,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 			try {
 				page.openEditor
 					(new FileEditorInput(modelFile),
-					 workbench.getEditorRegistry().getDefaultEditor(modelFile.getFullPath().toString()).getId());
+					 workbench.getEditorRegistry().getDefaultEditor(modelFile.getFullPath().toString()).getId());					 	 
 			}
 			catch (PartInitException exception) {
 				MessageDialog.openError(workbenchWindow.getShell(), Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_OpenEditorError_label"), exception.getMessage());
