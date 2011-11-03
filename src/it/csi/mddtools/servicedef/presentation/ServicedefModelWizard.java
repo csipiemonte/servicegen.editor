@@ -21,6 +21,22 @@
 package it.csi.mddtools.servicedef.presentation;
 
 
+import it.csi.mddtools.servicedef.OpTypeEnum;
+import it.csi.mddtools.servicedef.Operation;
+import it.csi.mddtools.servicedef.Param;
+import it.csi.mddtools.servicedef.ServiceDef;
+import it.csi.mddtools.servicedef.ServicedefFactory;
+import it.csi.mddtools.servicedef.ServicedefPackage;
+import it.csi.mddtools.servicedef.SrvTypeEnum;
+import it.csi.mddtools.servicedef.Types;
+import it.csi.mddtools.servicedef.provider.Servicedef_metamodelEditPlugin;
+import it.csi.mddtools.servicegen.presentation.Servicegen_metamodelEditorPlugin;
+import it.csi.mddtools.servicegen.provider.Servicegen_metamodelEditPlugin;
+import it.csi.mddtools.typedef.CSIExceptionTypes;
+import it.csi.mddtools.typedef.Entity;
+import it.csi.mddtools.typedef.TypedefFactory;
+import it.csi.mddtools.typedef.TypedefPackage;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,84 +47,53 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.StringTokenizer;
 
-import org.eclipse.emf.common.CommonPlugin;
-
-import org.eclipse.emf.common.util.URI;
-
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
-
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-
-import org.eclipse.emf.ecore.EObject;
-
-import org.eclipse.emf.ecore.xmi.XMLResource;
-
-import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-
 import org.eclipse.core.runtime.IProgressMonitor;
-
+import org.eclipse.core.runtime.Path;
+import org.eclipse.emf.common.CommonPlugin;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
 import org.eclipse.jface.dialogs.MessageDialog;
-
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
-
 import org.eclipse.swt.SWT;
-
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-
-import org.eclipse.ui.actions.WorkspaceModifyOperation;
-
-import org.eclipse.ui.dialogs.ResourceSelectionDialog;
-import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
-
-import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.part.ISetSelectionTarget;
-
-import it.csi.mddtools.servicedef.ServicedefFactory;
-import it.csi.mddtools.servicedef.ServicedefPackage;
-import it.csi.mddtools.servicedef.provider.Servicedef_metamodelEditPlugin;
-import it.csi.mddtools.servicegen.presentation.CommonFilesLocChooserWizardPage;
-import it.csi.mddtools.servicegen.presentation.Servicegen_metamodelEditorPlugin;
-import it.csi.mddtools.servicegen.provider.Servicegen_metamodelEditPlugin;
-
-
-import org.eclipse.core.runtime.Path;
-
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.StructuredSelection;
-
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.dialogs.ResourceSelectionDialog;
+import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
+import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.part.ISetSelectionTarget;
 
 
 /**
@@ -143,7 +128,14 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 * @generated
 	 */
 	protected ServicedefPackage servicedefPackage = ServicedefPackage.eINSTANCE;
-
+	
+	/**
+	 * This caches an instance of a type package
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected TypedefPackage typedefPackage = TypedefPackage.eINSTANCE;
 	/**
 	 * This caches an instance of the model factory.
 	 * <!-- begin-user-doc -->
@@ -151,7 +143,17 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 * @generated
 	 */
 	protected ServicedefFactory servicedefFactory = servicedefPackage.getServicedefFactory();
-
+	
+	
+	/**
+	 * This caches an instance of the type factory.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	
+	protected TypedefFactory typedefFactory = typedefPackage.getTypedefFactory();
+	 
 	/**
 	 * This is the file creation page.
 	 * <!-- begin-user-doc -->
@@ -169,7 +171,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	protected ServicedefModelWizardInitialObjectCreationPage initialObjectCreationPage;
 
 	
-	protected CommonFilesLocChooserWizardPage commonFilesPage;
+//	protected CommonFilesLocChooserWizardPage commonFilesPage;
 	
 	protected ServicedefModelWizardServiceInfoCreationPage serviceInfoPage;
 	
@@ -250,7 +252,54 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	protected EObject createInitialModel() {
 		EClass eClass = (EClass)servicedefPackage.getEClassifier(initialObjectCreationPage.getInitialObjectName());
 		EObject rootObject = servicedefFactory.create(eClass);
-		return rootObject;
+		ServiceDef sd = (ServiceDef) rootObject;
+		
+		//set dei dati passati via wizard
+		sd.setCodServizio(this.serviceInfoPage.getCodServizio());
+		sd.setVersione(this.serviceInfoPage.getVerServizio());
+		sd.setCodComponente(this.serviceInfoPage.getCodComponente());
+		sd.setCodProdotto(this.serviceInfoPage.getCodProdotto());
+		if("Servizio applicativo".equals(this.serviceInfoPage.getTipoServizio())){
+			sd.setServiceType(SrvTypeEnum.APPL);
+		}else if("Servizio di orchestrazione".equals(this.serviceInfoPage.getTipoServizio())){
+			sd.setServiceType(SrvTypeEnum.ORCH);
+		}else if("Servizio infrastrutturale".equals(this.serviceInfoPage.getTipoServizio())){
+			sd.setServiceType(SrvTypeEnum.INFR);
+		}
+		//creazione del servizio dummy se specificato nella apposita textfield del wizard
+		//operation dummy
+		//entity dummy
+		//exception dummy
+		
+		if(this.serviceInfoPage.getDummyNethodName()!=null && this.serviceInfoPage.getDummyNethodName().length()>0){
+			Entity en = typedefFactory.createEntity();
+			en.setName("DummyEntity");
+			en.setVersionuid(1);
+			it.csi.mddtools.typedef.Exception ex = typedefFactory.createException();
+			ex.setName("DummyException");
+			ex.setExceptionType(CSIExceptionTypes.USER);
+			//crea l'operation dummy
+			Operation op = servicedefFactory.createOperation();
+			op.setName(this.serviceInfoPage.getDummyNethodName());
+			op.setReturnType(en);
+			op.setOpType(OpTypeEnum.SYNCH);
+			//crea il param dummy
+			Param p = servicedefFactory.createParam();
+			p.setName("P1");
+			p.setType(en);
+			//setto param dentro operation
+			op.getParams().add(p);
+			op.getThrows().add(ex);
+			//creo types e setto sia exception che entity
+			Types t = servicedefFactory.createTypes();
+			t.getTypes().add(en);
+			t.getTypes().add(ex);
+			//setto nel servicedef gli oggetti del metodo dummy appena creati
+			sd.setTypes(t);
+			sd.getOperations().add(op);
+		}
+		
+		return sd;
 	}
 
 	/**
@@ -613,7 +662,8 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 			 * @generated NOT
 			 */
 			protected org.eclipse.swt.widgets.Text codServizio;
-			
+			protected org.eclipse.swt.widgets.Text codProdotto;
+			protected org.eclipse.swt.widgets.Text codComponente;
 			
 			/**
 			 * <!-- begin-user-doc -->
@@ -646,7 +696,33 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 				super(pageId);
 			}
 		
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public String getCodProdotto() {
+				String txt = codProdotto.getText();
+				if (txt==null || txt.length()==0)
+					return null;
+				else
+					return txt;
+			}
 			
+			/**
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public String getCodComponente() {
+				String txt = codComponente.getText();
+				if (txt==null || txt.length()==0)
+					return null;
+				else
+					return txt;
+			}
+			
+		
 			/**
 			 * <!-- begin-user-doc -->
 			 * <!-- end-user-doc -->
@@ -719,13 +795,50 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 					composite.setLayoutData(data);
 				}
 		
+				// codice prodotto
 				Label codProdottoLabel = new Label(composite, SWT.LEFT);
 				{
-					codProdottoLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_CodServizio_label"));
-		
+					codProdottoLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_CodProdotto_label"));
 					GridData data = new GridData();
 					data.horizontalAlignment = GridData.FILL;
 					codProdottoLabel.setLayoutData(data);
+				}
+				
+				codProdotto = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
+				{
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					data.grabExcessHorizontalSpace = true;
+					codProdotto.setLayoutData(data);
+					codProdotto.addModifyListener(validator);
+				}
+				
+				//codice componente
+				Label codComponenteLabel = new Label(composite, SWT.LEFT);
+				{
+					codComponenteLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_CodComponente_label"));
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					codProdottoLabel.setLayoutData(data);
+				}
+				
+				codComponente = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
+				{
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					data.grabExcessHorizontalSpace = true;
+					codComponente.setLayoutData(data);
+					codComponente.addModifyListener(validator);
+				}
+				
+				//codice servizio
+				Label codServizioLabel = new Label(composite, SWT.LEFT);
+				{
+					codServizioLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_CodServizio_label"));
+		
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					codServizioLabel.setLayoutData(data);
 				}
 		
 				codServizio = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
@@ -737,6 +850,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 					codServizio.addModifyListener(validator);
 				}
 				
+				//versione servizio
 				Label verProdottoLabel = new Label(composite, SWT.LEFT);
 				{
 					verProdottoLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_VerServizio_label"));
@@ -755,13 +869,13 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 					verServizio.addModifyListener(validator);
 				}
 				
-				Label codComponenteLabel = new Label(composite, SWT.LEFT);
+				//tipo servizio
+				Label tipoServizioLabel = new Label(composite, SWT.LEFT);
 				{
-					codComponenteLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_TipoServizio_label"));
-		
+					tipoServizioLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_TipoServizio_label"));
 					GridData data = new GridData();
 					data.horizontalAlignment = GridData.FILL;
-					codComponenteLabel.setLayoutData(data);
+					tipoServizioLabel.setLayoutData(data);
 				}
 				
 				tipoServizio = new Combo(composite, SWT.BORDER);
@@ -781,13 +895,12 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 				}
 				//tipoServizio.addModifyListener(validator);
 				
-				Label verComponenteLabel = new Label(composite, SWT.LEFT);
+				Label dummyMethodLabel = new Label(composite, SWT.LEFT);
 				{
-					verComponenteLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_DummyMethodName_label"));
-		
+					dummyMethodLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_DummyMethodName_label"));
 					GridData data = new GridData();
 					data.horizontalAlignment = GridData.FILL;
-					verComponenteLabel.setLayoutData(data);
+					dummyMethodLabel.setLayoutData(data);
 				}
 				
 				dummyNethodName = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
@@ -822,8 +935,8 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 			 */
 			protected boolean validatePage() {
 				//return getInitialObjectName() != null && getEncodings().contains(encodingField.getText());
-				return getCodServizio()!=null && getTipoServizio()!=null&&
-				getVerServizio()!=null && getDummyNethodName()!=null;
+				return getCodServizio()!=null && getTipoServizio()!=null &&
+				getVerServizio()!=null ;
 			}
 		
 			/**
@@ -1022,13 +1135,13 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 						rootModelFile.setText(modelFileSelected);
 					}
 				}
-				//modelFileText.setText(dialog.open());
+//				modelFileText.setText(model);
 			}
 			
 			private void dialogChanged() {
 //				IResource container = ResourcesPlugin.getWorkspace().getRoot()
 //						.findMember(new Path(getCommonFilesContainerName()));
-				modelFileName=modelFileText.getText();
+//				modelFileName=modelFileText.getText();
 				
 				String fileName = getRootModelFile();
 
@@ -1053,6 +1166,11 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 				}
 				IResource modelFile = ResourcesPlugin.getWorkspace().getRoot()
 					.findMember(new Path(getRootModelFile()));
+			
+				
+
+				
+				
 				if (!modelFile.exists()){
 					updateStatus("Il file che contiene il modello principale deve esistere");
 					return;
@@ -1232,15 +1350,15 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 		initialObjectCreationPage.setDescription(Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
 		addPage(initialObjectCreationPage);
 		
-		commonFilesPage = new CommonFilesLocChooserWizardPage(selection);
-		commonFilesPage.setTitle("Cartella file comuni");
-		commonFilesPage.setDescription("Selezionare la cartella contenente i file \"commonTNS.guigen\" e \"commonAppdata.guigen\"");
-		addPage(commonFilesPage);
+//		commonFilesPage = new CommonFilesLocChooserWizardPage(selection);
+//		commonFilesPage.setTitle("Cartella file comuni");
+//		commonFilesPage.setDescription("Selezionare la cartella contenente i file \"commonTNS.guigen\" e \"commonAppdata.guigen\"");
+//		addPage(commonFilesPage);
 		
-		serviceFileRefsPage = new ServicedefModelWizardFileRefsCreationPage("file_refs");
-		serviceFileRefsPage.setTitle("Riferimenti a file");
-		serviceFileRefsPage.setDescription("Inserire i riferimenti ai file referenziati");
-		addPage(serviceFileRefsPage);
+//		serviceFileRefsPage = new ServicedefModelWizardFileRefsCreationPage("file_refs");
+//		serviceFileRefsPage.setTitle("Riferimenti a file");
+//		serviceFileRefsPage.setDescription("Inserire i riferimenti ai file referenziati");
+//		addPage(serviceFileRefsPage);
 		
 		serviceInfoPage = new ServicedefModelWizardServiceInfoCreationPage("service_info");
 		serviceInfoPage.setTitle("Informazioni del servizio");
