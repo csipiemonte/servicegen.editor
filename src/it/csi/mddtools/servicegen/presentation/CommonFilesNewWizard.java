@@ -31,6 +31,8 @@ public class CommonFilesNewWizard extends Wizard implements INewWizard {
 	private ISelection selection;
 
 	private static final String BASETYPES_RESOURCE_NAME = "basetypes.servicegen";
+	private static final String WS_BASETYPES_RESOURCE_NAME = "wsbasetypes.servicegen";
+
 	/**
 	 * Constructor for CommonTNSNewWizard.
 	 */
@@ -89,18 +91,20 @@ public class CommonFilesNewWizard extends Wizard implements INewWizard {
 		String containerName,
 		IProgressMonitor monitor)
 		throws CoreException {
+		
 		// create a sample file
-		monitor.beginTask("Creating \""+BASETYPES_RESOURCE_NAME+"\" ", 2);
+		monitor.beginTask("Creating \""+BASETYPES_RESOURCE_NAME+"\" and \""+BASETYPES_RESOURCE_NAME+"\" ", 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource resource = root.findMember(new Path(containerName));
 		if (!resource.exists() || !(resource instanceof IContainer)) {
 			throwCoreException("Container \"" + containerName + "\" does not exist.");
 		}
 		IContainer container = (IContainer) resource;
+
 		///////
 		final IFile fileTNS = container.getFile(new Path(BASETYPES_RESOURCE_NAME));
 		try {
-			InputStream stream = openContentStreamCommonTNS();
+			InputStream stream = openContentStreamCommonTNS(BASETYPES_RESOURCE_NAME);
 			if (fileTNS.exists()) {
 				fileTNS.setContents(stream, true, true, monitor);
 			} else {
@@ -109,25 +113,25 @@ public class CommonFilesNewWizard extends Wizard implements INewWizard {
 			stream.close();
 		} catch (IOException e) {
 		}
+		monitor.worked(1);
 		
 		///////
-		monitor.worked(1);
-		monitor.setTaskName("Opening file for editing...");
-		getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				IWorkbenchPage page =
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				try {
-					IDE.openEditor(page, fileTNS, true);
-				} catch (PartInitException e) {
-				}
+		final IFile fileWsTNS = container.getFile(new Path(WS_BASETYPES_RESOURCE_NAME));
+		try {
+			InputStream wsStream = openContentStreamCommonTNS(WS_BASETYPES_RESOURCE_NAME);
+			if (fileWsTNS.exists()) {
+				fileWsTNS.setContents(wsStream, true, true, monitor);
+			} else {
+				fileWsTNS.create(wsStream, true, monitor);
 			}
-		});
+			wsStream.close();
+		} catch (IOException e) {
+		}
 		monitor.worked(1);
 	}
 	
-	private InputStream openContentStreamCommonTNS() {
-		InputStream is = getClass().getResourceAsStream("/"+BASETYPES_RESOURCE_NAME);
+	private InputStream openContentStreamCommonTNS(String fileName) {
+		InputStream is = getClass().getResourceAsStream("/"+fileName);
 		return is;
 	}
 	
