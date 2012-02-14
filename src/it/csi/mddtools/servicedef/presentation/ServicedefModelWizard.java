@@ -133,7 +133,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 * This caches an instance of a type package
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated  NOT
 	 */
 	protected TypedefPackage typedefPackage = TypedefPackage.eINSTANCE;
 	/**
@@ -149,7 +149,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 * This caches an instance of the type factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	
 	protected TypedefFactory typedefFactory = typedefPackage.getTypedefFactory();
