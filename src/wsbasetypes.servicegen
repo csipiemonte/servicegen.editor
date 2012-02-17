@@ -86,7 +86,7 @@
     </annotations>
     <languageBindings lang="java" langSpecificType="XMLGregorianCalendar" langSpecificNS="javax.xml.datatype." defaultInitValue="null" nullValueLiteral="null"/>
   </baseTypes>
-  <baseTypes xsi:type="typedef:PrimitiveType" name="dateTime">
+  <baseTypes xsi:type="typedef:PrimitiveType" name="dateTime" typesetName="xsd">
     <annotations source="jaxb">
       <details key="@XmlElement" value="required = true"/>
       <details key="@XmlSchemaType" value="name = &quot;dateTime&quot;"/>
