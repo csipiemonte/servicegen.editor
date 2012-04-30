@@ -21,33 +21,22 @@
 package it.csi.mddtools.servicegen.presentation;
 
 
+import it.csi.mddtools.servicegen.SOABEModel;
+import it.csi.mddtools.servicegen.ServicegenFactory;
+import it.csi.mddtools.servicegen.ServicegenPackage;
+import it.csi.mddtools.servicegen.TargetPlatformCodes;
+import it.csi.mddtools.servicegen.provider.Servicegen_metamodelEditPlugin;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.StringTokenizer;
-
-import org.eclipse.emf.common.CommonPlugin;
-
-import org.eclipse.emf.common.util.URI;
-
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
-
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-
-import org.eclipse.emf.ecore.EObject;
-
-import org.eclipse.emf.ecore.xmi.XMLResource;
-
-import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -55,57 +44,42 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-
 import org.eclipse.core.runtime.IProgressMonitor;
-
+import org.eclipse.core.runtime.Path;
+import org.eclipse.emf.common.CommonPlugin;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
 import org.eclipse.jface.dialogs.MessageDialog;
-
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
-
 import org.eclipse.swt.SWT;
-
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
-
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-
-import org.eclipse.ui.actions.WorkspaceModifyOperation;
-
-import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
-
-import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.part.ISetSelectionTarget;
-
-import it.csi.mddtools.appresources.AppresourcesFactory;
-import it.csi.mddtools.servicegen.presentation.CommonFilesLocChooserWizardPage;
-import it.csi.mddtools.servicegen.BaseTypes;
-import it.csi.mddtools.servicegen.SOABEModel;
-import it.csi.mddtools.servicegen.ServicegenFactory;
-import it.csi.mddtools.servicegen.ServicegenPackage;
-import it.csi.mddtools.servicegen.provider.Servicegen_metamodelEditPlugin;
-import it.csi.mddtools.typedef.Type;
-
-
-import org.eclipse.core.runtime.Path;
-
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.StructuredSelection;
-
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
+import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.part.ISetSelectionTarget;
 
 
 /**
@@ -272,9 +246,9 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 			model.setCodComponente(anaprodDataCreationPage.getCodComponente());
 			model.setVersioneProdotto(anaprodDataCreationPage.getVerProdotto());
 			model.setVersioneComponente(anaprodDataCreationPage.getVerComponente());
-			
+			model.setTargetPlatform(ServicegenFactory.eINSTANCE.createTargetPlatform());
 		}
-		// se la classe è BaseTypes creo un modello di tipi base
+		// se la classe ï¿½ BaseTypes creo un modello di tipi base
 //		else if (initialObjectCreationPage.getInitialObjectName().indexOf("BaseTypes")!=-1){
 //			// crea tipi base
 //			Type [] baseCSITypes = it.csi.mddtools.servicegen.genutils.CodeGenerationUtils.generateCSIBaseTypes();
@@ -682,6 +656,9 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 		 * @generated NOT
 		 */
 		protected org.eclipse.swt.widgets.Text verComponente;
+
+
+		private Combo codeServerCombo;
 	
 		/**
 		 * Pass in the selection.
@@ -837,6 +814,31 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 				verComponente.setLayoutData(data);
 				verComponente.addModifyListener(validator);
 			}
+			
+			Label codeServerLabel = new Label(composite, SWT.LEFT);
+			{
+				codeServerLabel.setText("Server Code");
+				GridData data = new GridData();
+				data.horizontalAlignment = GridData.FILL;
+				codeServerLabel.setLayoutData(data);
+			}
+
+			codeServerCombo = new Combo(composite, SWT.BORDER);
+			{
+				GridData data = new GridData();
+				data.horizontalAlignment = GridData.FILL;
+				data.grabExcessHorizontalSpace = true;
+				codeServerCombo.setLayoutData(data);
+			}
+			
+			
+			for (Iterator<TargetPlatformCodes> iterator = TargetPlatformCodes.VALUES.iterator(); iterator.hasNext();) {
+				TargetPlatformCodes targetPlatformCodes = (TargetPlatformCodes) iterator.next();
+				codeServerCombo.add(targetPlatformCodes.getName());
+				
+			}
+			codeServerCombo.select(0);
+			codeServerCombo.addModifyListener(validator);
 			
 			setPageComplete(validatePage());
 			setControl(composite);
@@ -1002,7 +1004,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 		anaprodDataCreationPage.setDescription("Inserire i dati di identificazione del componente risultante come da specifiche ANAPROD");
 		addPage(anaprodDataCreationPage);
 	
-		// TODO per ora non è utilizzato => commento
+		// TODO per ora non ï¿½ utilizzato => commento
 //		commonFilesPage = new CommonFilesLocChooserWizardPage(selection);
 //		commonFilesPage.setTitle("Cartella file comuni");
 //		commonFilesPage.setDescription("Selezionare la cartella contenente i file \"commonTNS.guigen\" e \"commonAppdata.guigen\"");
