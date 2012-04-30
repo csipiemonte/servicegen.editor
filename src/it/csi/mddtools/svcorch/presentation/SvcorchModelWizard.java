@@ -21,6 +21,23 @@
 package it.csi.mddtools.svcorch.presentation;
 
 
+import it.csi.mddtools.servicedef.Operation;
+import it.csi.mddtools.servicedef.Param;
+import it.csi.mddtools.servicedef.ServiceDef;
+import it.csi.mddtools.servicegen.genutils.CodeGenerationUtils;
+import it.csi.mddtools.svcorch.DataSlot;
+import it.csi.mddtools.svcorch.DataSlots;
+import it.csi.mddtools.svcorch.InputParamBindings;
+import it.csi.mddtools.svcorch.Nodes;
+import it.csi.mddtools.svcorch.Orchestration;
+import it.csi.mddtools.svcorch.ParamBinding;
+import it.csi.mddtools.svcorch.StartNode;
+import it.csi.mddtools.svcorch.StopNode;
+import it.csi.mddtools.svcorch.SvcorchFactory;
+import it.csi.mddtools.svcorch.SvcorchPackage;
+import it.csi.mddtools.svcorch.provider.SvcorchEditPlugin;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,76 +48,49 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.StringTokenizer;
 
-import org.eclipse.emf.common.CommonPlugin;
-
-import org.eclipse.emf.common.util.URI;
-
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
-
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-
-import org.eclipse.emf.ecore.EObject;
-
-import org.eclipse.emf.ecore.xmi.XMLResource;
-
-import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-
 import org.eclipse.core.runtime.IProgressMonitor;
-
+import org.eclipse.core.runtime.Path;
+import org.eclipse.emf.common.CommonPlugin;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
 import org.eclipse.jface.dialogs.MessageDialog;
-
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
-
 import org.eclipse.swt.SWT;
-
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
-
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-
-import org.eclipse.ui.actions.WorkspaceModifyOperation;
-
-import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
-
-import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.part.ISetSelectionTarget;
-
-import it.csi.mddtools.svcorch.SvcorchFactory;
-import it.csi.mddtools.svcorch.SvcorchPackage;
-import it.csi.mddtools.svcorch.provider.SvcorchEditPlugin;
-
-
-import org.eclipse.core.runtime.Path;
-
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.StructuredSelection;
-
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
+import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.part.ISetSelectionTarget;
 
 
 /**
@@ -184,6 +174,8 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 	 */
 	protected List<String> initialObjectNames;
 
+	private OrchestrationFilesLocChooserWizardPage orchestrationFilesLocChooserWizardPage;
+
 	/**
 	 * This just records the information.
 	 * <!-- begin-user-doc -->
@@ -201,7 +193,7 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 	 * Returns the names of the types that can be created as the root object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	protected Collection<String> getInitialObjectNames() {
 		if (initialObjectNames == null) {
@@ -209,7 +201,7 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 			for (EClassifier eClassifier : svcorchPackage.getEClassifiers()) {
 				if (eClassifier instanceof EClass) {
 					EClass eClass = (EClass)eClassifier;
-					if (!eClass.isAbstract()) {
+					if (!eClass.isAbstract() && canCreate(eClass)) {
 						initialObjectNames.add(eClass.getName());
 					}
 				}
@@ -219,6 +211,13 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 		return initialObjectNames;
 	}
 
+	
+	protected boolean canCreate(EClass cl){
+		if (cl.getName().equals("Orchestration"))
+			return true;
+		else
+			return false;
+	}
 	/**
 	 * Create a new model.
 	 * <!-- begin-user-doc -->
@@ -245,69 +244,127 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 			final IFile modelFile = getModelFile();
 
 			// Do the work within an operation.
-			//
 			WorkspaceModifyOperation operation =
-				new WorkspaceModifyOperation() {
-					@Override
-					protected void execute(IProgressMonitor progressMonitor) {
-						try {
-							// Create a resource set
-							//
-							ResourceSet resourceSet = new ResourceSetImpl();
+					new WorkspaceModifyOperation() {
+				@Override
+				protected void execute(IProgressMonitor progressMonitor) {
+					try {
+						// Create a resource set
+						ResourceSet resourceSet = new ResourceSetImpl();
+						// Get the URI of the model file.
+						URI fileURI = URI.createPlatformResourceURI(modelFile.getFullPath().toString(), true);
+						// Create a resource for this file.
+						Resource resource = resourceSet.createResource(fileURI);
+						
+						// Add the initial model object to the contents.
+						EObject rootObject = createInitialModel();
 
-							// Get the URI of the model file.
-							//
-							URI fileURI = URI.createPlatformResourceURI(modelFile.getFullPath().toString(), true);
-
-							// Create a resource for this file.
-							//
-							Resource resource = resourceSet.createResource(fileURI);
-
-							// Add the initial model object to the contents.
-							//
-							EObject rootObject = createInitialModel();
-							if (rootObject != null) {
-								resource.getContents().add(rootObject);
-							}
+						if (rootObject != null) {
+							resource.getContents().add(rootObject);
 
 							// Save the contents of the resource to the file system.
-							//
 							Map<Object, Object> options = new HashMap<Object, Object>();
 							options.put(XMLResource.OPTION_ENCODING, initialObjectCreationPage.getEncoding());
+
+							if(rootObject instanceof Orchestration){
+
+								Orchestration orchestration = (Orchestration) rootObject;
+
+								//SET SERVIZIO
+								ServiceDef service = orchestrationFilesLocChooserWizardPage.getSercidefOrchestration();
+								orchestration.setService(service);
+								//SET OPERATION
+								Operation operation = orchestrationFilesLocChooserWizardPage.getOperationSelected();
+								orchestration.setOperation(operation);
+
+								//DEF DATASLOTS
+								DataSlots dataSlots = SvcorchFactory.eINSTANCE.createDataSlots();
+
+								//SET ReturnSLOT e DATASLOT
+								DataSlot dataSlotRT = SvcorchFactory.eINSTANCE.createDataSlot();
+								dataSlotRT.setType(operation.getReturnType());
+								dataSlotRT.setName("result");
+
+								//ADD DataSlots
+								orchestration.setReturnSlot(dataSlotRT);
+
+								//DEF InputParamBindings
+								InputParamBindings inputParamBindings = SvcorchFactory.eINSTANCE.createInputParamBindings();
+
+								//SET InputParamBindingc --> InputParams method e data slot
+								EList<Param> paramsOperation = operation.getParams();
+								for (Param param : paramsOperation) {
+									ParamBinding paramBinding = SvcorchFactory.eINSTANCE.createParamBinding();
+									paramBinding.setParam(param);
+									DataSlot dataSlotIPB = SvcorchFactory.eINSTANCE.createDataSlot();
+									dataSlotIPB.setType(param.getType());
+									dataSlotIPB.setName("in"+CodeGenerationUtils.toFirstUpper(param.getName()));
+									paramBinding.setSlot(dataSlotIPB);
+									dataSlots.getSlots().add(dataSlotIPB);	
+									inputParamBindings.getInputParams().add(paramBinding);
+								}
+
+								//ADD InputParamBindings
+								orchestration.setInputParamBindings(inputParamBindings);						
+
+								dataSlots.getSlots().add(dataSlotRT);			
+								orchestration.setGlobalSlots(dataSlots);
+
+								//DEF NODES
+								Nodes nodes = SvcorchFactory.eINSTANCE.createNodes();
+
+								////SET Nodes (start - stop)
+								StartNode startNode = SvcorchFactory.eINSTANCE.createStartNode();
+								startNode.setName("startNode");
+								startNode.setDescription("Nodo Start orchestrazione");								
+								nodes.getNodes().add(startNode);
+
+								StopNode stopNode = SvcorchFactory.eINSTANCE.createStopNode();
+								stopNode.setName("stopNode");
+								stopNode.setDescription("Nodo stop Orchestrazione");
+								nodes.getNodes().add(stopNode);		
+								startNode.setNext(stopNode);
+
+								//ADD Nodes
+								orchestration.setNodes(nodes);
+
+							}
+
 							resource.save(options);
 						}
-						catch (Exception exception) {
-							SvcorchEditorPlugin.INSTANCE.log(exception);
-						}
-						finally {
-							progressMonitor.done();
-						}
 					}
-				};
+					catch (Exception exception) {
+						SvcorchEditorPlugin.INSTANCE.log(exception);
+					}
+					finally {
+						progressMonitor.done();
+					}
+				}
+
+
+			};
 
 			getContainer().run(false, false, operation);
 
 			// Select the new file resource in the current view.
-			//
 			IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
 			IWorkbenchPage page = workbenchWindow.getActivePage();
 			final IWorkbenchPart activePart = page.getActivePart();
 			if (activePart instanceof ISetSelectionTarget) {
 				final ISelection targetSelection = new StructuredSelection(modelFile);
 				getShell().getDisplay().asyncExec
-					(new Runnable() {
-						 public void run() {
-							 ((ISetSelectionTarget)activePart).selectReveal(targetSelection);
-						 }
-					 });
+				(new Runnable() {
+					public void run() {
+						((ISetSelectionTarget)activePart).selectReveal(targetSelection);
+					}
+				});
 			}
 
 			// Open an editor on the new file.
-			//
 			try {
 				page.openEditor
-					(new FileEditorInput(modelFile),
-					 workbench.getEditorRegistry().getDefaultEditor(modelFile.getFullPath().toString()).getId());					 	 
+				(new FileEditorInput(modelFile),
+						workbench.getEditorRegistry().getDefaultEditor(modelFile.getFullPath().toString()).getId());					 	 
 			}
 			catch (PartInitException exception) {
 				MessageDialog.openError(workbenchWindow.getShell(), SvcorchEditorPlugin.INSTANCE.getString("_UI_OpenEditorError_label"), exception.getMessage());
@@ -625,11 +682,56 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 					newFileCreationPage.setFileName(modelFilename);
 				}
 			}
+		
+		
+		
+		
+			initialObjectCreationPage = new SvcorchModelWizardInitialObjectCreationPage("Whatever2");
+			initialObjectCreationPage.setTitle(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchModelWizard_label"));
+			initialObjectCreationPage.setDescription(SvcorchEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
+			addPage(initialObjectCreationPage);
+
+			orchestrationFilesLocChooserWizardPage = new OrchestrationFilesLocChooserWizardPage(selection);	
+			String servicedefFilePathTmp= defineServicedefFile();		
+			orchestrationFilesLocChooserWizardPage.setServiceDefFilePath(servicedefFilePathTmp);
+			addPage(orchestrationFilesLocChooserWizardPage);
 		}
-		initialObjectCreationPage = new SvcorchModelWizardInitialObjectCreationPage("Whatever2");
-		initialObjectCreationPage.setTitle(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchModelWizard_label"));
-		initialObjectCreationPage.setDescription(SvcorchEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
-		addPage(initialObjectCreationPage);
+	}
+
+	private String defineServicedefFile() {
+		String servicedefFilePathTmp= "";
+		if (selection != null && !selection.isEmpty()) {
+			
+			ServiceDef sercidefOrchestration;
+			IResource selectedResource = (IResource)selection.iterator().next();;
+			servicedefFilePathTmp = selectedResource.getFullPath().toPortableString();
+
+			if (selectedResource.getType() == IResource.FILE) {		
+				try {
+					URI modPrincFileURI = URI.createPlatformResourceURI(servicedefFilePathTmp, true);
+					ResourceSet resourceSet = new ResourceSetImpl();
+					Resource modPrincResource = resourceSet.createResource(modPrincFileURI);
+					Map<Object, Object> options = new HashMap<Object, Object>();
+
+					modPrincResource.load(options);
+
+					EList emfModPrincContent = (EList)modPrincResource.getContents();
+					if ( (emfModPrincContent.get(0)) instanceof ServiceDef){
+						sercidefOrchestration = (ServiceDef)(emfModPrincContent.get(0));
+						orchestrationFilesLocChooserWizardPage.setSercidefOrchestration(sercidefOrchestration);
+					
+					}
+					else {
+						selectedResource = selectedResource.getParent();
+						servicedefFilePathTmp = selectedResource.getFullPath().toPortableString();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return servicedefFilePathTmp;
 	}
 
 	/**
