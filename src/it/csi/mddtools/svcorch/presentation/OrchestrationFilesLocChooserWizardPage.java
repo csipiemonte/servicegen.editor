@@ -76,7 +76,6 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 	}
 
 	private ISelection selection;
-	private Text blanck;
 	private Button servicedefButtonLoad;
 
 	//TODO
@@ -147,15 +146,8 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 			}
 		});
 
-
-		blanck = new Text(container,SWT.SINGLE);
-		blanck.setText("");
-		blanck.setEditable(false);
-		blanck.setEnabled(false);
-		blanck = new Text(container,SWT.SINGLE);
-		blanck.setText("");
-		blanck.setEditable(false);
-		blanck.setEnabled(false);
+		Label blanck = new Label(container, SWT.NULL);
+		Label blanck2 = new Label(container, SWT.NULL);
 		Label labelServicedefOperation = new Label(container, SWT.NULL);
 		labelServicedefOperation.setText("Operation");
 
