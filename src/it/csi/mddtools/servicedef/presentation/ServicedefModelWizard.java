@@ -30,6 +30,11 @@ import it.csi.mddtools.servicedef.ServicedefPackage;
 import it.csi.mddtools.servicedef.SrvTypeEnum;
 import it.csi.mddtools.servicedef.Types;
 import it.csi.mddtools.servicedef.provider.Servicedef_metamodelEditPlugin;
+import it.csi.mddtools.servicegen.ManualImplCartridge;
+import it.csi.mddtools.servicegen.ResourceBasedSimpleSC;
+import it.csi.mddtools.servicegen.SOABEModel;
+import it.csi.mddtools.servicegen.ServiceImpl;
+import it.csi.mddtools.servicegen.ServicegenFactory;
 import it.csi.mddtools.servicegen.presentation.Servicegen_metamodelEditorPlugin;
 import it.csi.mddtools.servicegen.provider.Servicegen_metamodelEditPlugin;
 import it.csi.mddtools.typedef.CSIExceptionTypes;
@@ -37,6 +42,7 @@ import it.csi.mddtools.typedef.Entity;
 import it.csi.mddtools.typedef.TypedefFactory;
 import it.csi.mddtools.typedef.TypedefPackage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,6 +62,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.CommonPlugin;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
@@ -69,6 +76,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -76,6 +84,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -169,9 +178,6 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 * @generated
 	 */
 	protected ServicedefModelWizardInitialObjectCreationPage initialObjectCreationPage;
-
-	
-//	protected CommonFilesLocChooserWizardPage commonFilesPage;
 	
 	protected ServicedefModelWizardServiceInfoCreationPage serviceInfoPage;
 	
@@ -200,7 +206,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	protected List<String> initialObjectNames;
 
 	private ServicedefModelWizardFileRefsCreationPage serviceFileRefsPage;
-
+	
 	/**
 	 * This just records the information.
 	 * <!-- begin-user-doc -->
@@ -323,29 +329,66 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 					protected void execute(IProgressMonitor progressMonitor) {
 						try {
 							// Create a resource set
-							//
 							ResourceSet resourceSet = new ResourceSetImpl();
 
 							// Get the URI of the model file.
-							//
 							URI fileURI = URI.createPlatformResourceURI(modelFile.getFullPath().toString(), true);
 
 							// Create a resource for this file.
-							//
 							Resource resource = resourceSet.createResource(fileURI);
+							
+							Resource modPrincResource = null;
 
 							// Add the initial model object to the contents.
-							//
 							EObject rootObject = createInitialModel();
+							
+							// Save the contents of the resource to the file system.
+							Map<Object, Object> options = new HashMap<Object, Object>();
+							options.put(XMLResource.OPTION_ENCODING, initialObjectCreationPage.getEncoding());
+							
+							String modPrincFilePath =serviceFileRefsPage.getRootModelFile();
+							
+							if(serviceFileRefsPage.getModelloPrincipale()!= null &&(modPrincFilePath!=null && !"".equalsIgnoreCase(modPrincFilePath)) ){
+								//LOAD MODELLO PRINCIPALE 
+
+								URI modPrincFileURI = URI.createPlatformResourceURI(modPrincFilePath, true);
+								
+								modPrincResource = resourceSet.createResource(modPrincFileURI);
+								
+								modPrincResource.load(options);
+								EList emfModPrincContent = (EList)modPrincResource.getContents();
+								SOABEModel modPrincModule = (emfModPrincContent.get(0) instanceof SOABEModel) ? (SOABEModel)(emfModPrincContent.get(0)) : null;
+
+								if(null!= modPrincModule && rootObject instanceof ServiceDef){
+									ServiceDef serviceDef = (ServiceDef) rootObject;
+
+									//CREARE SERVICE IMPL
+									ServiceImpl serviceImpl = ServicegenFactory.eINSTANCE.createServiceImpl();
+									//DEF SERVICEDEF
+									serviceImpl.setProvides(serviceDef);								
+									//DEF BASED RESOURCE
+									ResourceBasedSimpleSC resourceBasedSimpleSC = ServicegenFactory.eINSTANCE.createResourceBasedSimpleSC();
+									serviceImpl.setServiceComponent(resourceBasedSimpleSC);
+									//DEF MANUAL CARTRIDGE 
+									ManualImplCartridge manualImplCartridge = ServicegenFactory.eINSTANCE.createManualImplCartridge();
+									manualImplCartridge.setUseInjectedPojo(true);
+									serviceImpl.setImplCartridge(manualImplCartridge);
+
+									//ADD SERVICEIMPL al modello principale
+									modPrincModule.getServiceimplementations().add(serviceImpl);
+									
+								
+
+								}
+							}
+							
 							if (rootObject != null) {
 								resource.getContents().add(rootObject);
 							}
 
-							// Save the contents of the resource to the file system.
-							//
-							Map<Object, Object> options = new HashMap<Object, Object>();
-							options.put(XMLResource.OPTION_ENCODING, initialObjectCreationPage.getEncoding());
 							resource.save(options);
+							if(modPrincResource!=null)
+								modPrincResource.save(options);
 						}
 						catch (Exception exception) {
 							Servicedef_metamodelEditorPlugin.INSTANCE.log(exception);
@@ -661,10 +704,26 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 			 * <!-- end-user-doc -->
 			 * @generated NOT
 			 */
-			protected org.eclipse.swt.widgets.Text codServizio;
+			protected org.eclipse.swt.widgets.Text codServizio;			
 			protected org.eclipse.swt.widgets.Text codProdotto;
 			protected org.eclipse.swt.widgets.Text codComponente;
 			
+			
+			public void setCodServizio(String codServizio) {
+				this.codServizio.setText(codServizio);
+			}
+
+			public void setCodProdotto(String codProdotto) {
+				this.codProdotto.setText(codProdotto);
+			}
+
+			public void setCodComponente(String codComponente) {
+				this.codComponente.setText(codComponente);
+			}
+
+			public void setVerServizio(String verServizio) {
+				this.verServizio.setText(verServizio);
+			}
 			/**
 			 * <!-- begin-user-doc -->
 			 * <!-- end-user-doc -->
@@ -695,7 +754,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 			public ServicedefModelWizardServiceInfoCreationPage(String pageId) {
 				super(pageId);
 			}
-		
+			
 			/**
 			 * <!-- begin-user-doc -->
 			 * <!-- end-user-doc -->
@@ -845,7 +904,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 				{
 					GridData data = new GridData();
 					data.horizontalAlignment = GridData.FILL;
-					data.grabExcessHorizontalSpace = true;
+					data.grabExcessHorizontalSpace = true;					
 					codServizio.setLayoutData(data);
 					codServizio.addModifyListener(validator);
 				}
@@ -884,6 +943,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 					data.horizontalAlignment = GridData.FILL;
 					data.grabExcessHorizontalSpace = true;
 					tipoServizio.setLayoutData(data);
+					tipoServizio.addModifyListener(validator);
 				}
 		
 				tipoServizio.add("Servizio applicativo");
@@ -934,7 +994,6 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 			 * @generated NOT
 			 */
 			protected boolean validatePage() {
-				//return getInitialObjectName() != null && getEncodings().contains(encodingField.getText());
 				return getCodServizio()!=null && getTipoServizio()!=null &&
 				getVerServizio()!=null ;
 			}
@@ -1023,6 +1082,27 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 		 * @generated NOT
 		 */
 		public class ServicedefModelWizardFileRefsCreationPage extends WizardPage {
+		
+			
+			// property appoggio per inizializzazione WIZARD
+			private boolean selectSOABEModel;
+			private String selectFilePath;
+
+			public boolean isSelectSOABEModel() {
+				return selectSOABEModel;
+			}
+
+			public void setSelectSOABEModel(boolean selectSOABEModel) {
+				this.selectSOABEModel = selectSOABEModel;
+			}
+
+			public String getSelectFilePath() {
+				return selectFilePath;
+			}
+
+			public void setSelectFilePath(String selectFilePath) {
+				this.selectFilePath = selectFilePath;
+			}
 			
 			/**
 			 * <!-- begin-user-doc -->
@@ -1030,10 +1110,23 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 			 * @generated NOT
 			 */
 			protected org.eclipse.swt.widgets.Text rootModelFile;
-			private Text modelFileText;
-			private String modelFileName;
+			private SOABEModel modelloPrincipale;
 			
 			
+
+			private Button selectSOABEModelCheck;
+			
+			/**
+			 * Pass in the selection.
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			public SOABEModel getModelloPrincipale() {
+				return modelloPrincipale;
+			}
+
+
 			/**
 			 * Pass in the selection.
 			 * <!-- begin-user-doc -->
@@ -1046,12 +1139,34 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 		
 			
 			/**
+			 * Pass in the selection.
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated NOT
+			 */
+			@Override
+			public IWizardPage getNextPage() {
+				IWizardPage wiz = super.getNextPage();
+				SOABEModel modello = getModelloPrincipale();
+				
+				if(modello != null){		
+					if(wiz instanceof ServicedefModelWizardServiceInfoCreationPage){
+						((ServicedefModelWizardServiceInfoCreationPage)wiz).setCodComponente(modello.getCodComponente());
+						((ServicedefModelWizardServiceInfoCreationPage)wiz).setCodProdotto(modello.getCodProdotto());
+					}
+				}
+				
+				return wiz;
+					
+			}
+			
+			/**
 			 * <!-- begin-user-doc -->
 			 * <!-- end-user-doc -->
 			 * @generated NOT
 			 */
 			public String getRootModelFile() {
-				String txt = rootModelFile.getText();
+				String txt =  rootModelFile.getText();
 				if (txt==null || txt.length()==0)
 					return null;
 				else
@@ -1078,11 +1193,46 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 					composite.setLayoutData(data);
 				}
 		
+				Label entichmentCheckBoxlabel = new Label(composite, SWT.LEFT);
+				{
+					entichmentCheckBoxlabel.setText("Abilita selezione modello principale");
+					entichmentCheckBoxlabel.setToolTipText("Abilita selezione modello principale");
+					GridData data = new GridData();
+					data.horizontalAlignment = GridData.FILL;
+					entichmentCheckBoxlabel.setLayoutData(data);
+				}
+				
+				selectSOABEModelCheck= new Button(composite, SWT.CHECK | SWT.LEFT);
+				selectSOABEModelCheck.setSelection(isSelectSOABEModel());
+				
+				selectSOABEModelCheck.addSelectionListener(new SelectionListener() {
+					
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						if(selectSOABEModelCheck.getSelection()){
+							rootModelFile.setEnabled(true);
+							dialogChanged();
+						}
+						else{
+							rootModelFile.setEnabled(false);
+							updateStatus(null);
+						}
+						
+					}
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {
+					}
+					
+					
+				});
+				
 				Label label = new Label(composite, SWT.NULL);
 				label.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_RootModelFile_label"));
 				rootModelFile = new Text(composite, SWT.BORDER | SWT.SINGLE);
 				GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 				rootModelFile.setLayoutData(gd);
+				rootModelFile.setEnabled(isSelectSOABEModel());
 				rootModelFile.addModifyListener(new ModifyListener() {
 					public void modifyText(ModifyEvent e) {
 						dialogChanged();
@@ -1096,37 +1246,19 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 					}
 				});
 				
-				
-//				Label codProdottoLabel = new Label(composite, SWT.LEFT);
-//				{
-//					codProdottoLabel.setText(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_RootModelFile_label"));
-//		
-//					GridData data = new GridData();
-//					data.horizontalAlignment = GridData.FILL;
-//					codProdottoLabel.setLayoutData(data);
-//				}
-//		
-//				rootModelFile = new org.eclipse.swt.widgets.Text(composite, SWT.BORDER);
-//				{
-//					GridData data = new GridData();
-//					data.horizontalAlignment = GridData.FILL;
-//					data.grabExcessHorizontalSpace = true;
-//					rootModelFile.setLayoutData(data);
-//					rootModelFile.addModifyListener(validator);
-//				}
-				
-				
-				
-				
-				
-				
-				setPageComplete(validatePage());
+				setPageComplete(true);
+				initialize();
 				setControl(composite);
 			}
 		
+			
+			private void initialize() {
+				if(null!=getSelectFilePath()){
+					rootModelFile.setText(getSelectFilePath());
+					validaModello();
+				}
+			}
 			private void handleRootModelFileBrowse() {
-//				org.eclipse.swt.widgets.FileDialog dialog = new org.eclipse.swt.widgets.FileDialog(
-//						getShell());
 				ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), ResourcesPlugin.getWorkspace().getRoot(), "Scegliere file del modello principale");
 				if (dialog.open() == ResourceSelectionDialog.OK) {
 					Object[] result = dialog.getResult();
@@ -1135,89 +1267,69 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 						rootModelFile.setText(modelFileSelected);
 					}
 				}
-//				modelFileText.setText(model);
 			}
 			
 			private void dialogChanged() {
-//				IResource container = ResourcesPlugin.getWorkspace().getRoot()
-//						.findMember(new Path(getCommonFilesContainerName()));
-//				modelFileName=modelFileText.getText();
 				
-				String fileName = getRootModelFile();
-
-				
-				
-//				IResource commonAppdataRes = ResourcesPlugin.getWorkspace().getRoot()
-//				.findMember(new Path(getCommonFilesContainerName()+"/"+"commonAppdata.guigen"));
-//				
-//				if (commonTNSRes==null || commonAppdataRes==null || !commonTNSRes.exists() || !commonAppdataRes.exists()){
-//					updateStatus("La cartella specificata deve contenere i file [commonTNS.guigen] e [commonAppdata.guigen]");
-//					return;
-//				}
-				
-				//// controlli sul model file
-				if (fileName.length() == 0) {
-					updateStatus("Occorre specificare il percorso del file che contiene il modello principale");
-					return;
-				}
-				if (!fileName.endsWith(".servicegen")){
-					updateStatus("Il file che contiene il modello principale deve avere l'estensione 'servicegen'");
-					return;
-				}
-				IResource modelFile = ResourcesPlugin.getWorkspace().getRoot()
-					.findMember(new Path(getRootModelFile()));
-			
-				
-
-				
-				
-				if (!modelFile.exists()){
-					updateStatus("Il file che contiene il modello principale deve esistere");
-					return;
-				}
-				
-//				if (fileName.replace('\\', '/').indexOf('/', 1) > 0) {
-//					updateStatus("File name must be valid");
-//					return;
-//				}
-				int dotLoc = fileName.lastIndexOf('.');
-				if (dotLoc != -1) {
-					String ext = fileName.substring(dotLoc + 1);
-					if (ext.equalsIgnoreCase("servicegen") == false) {
-						updateStatus("File extension must be \"servicegen\"");
+				if(rootModelFile.getEnabled()){
+					String fileName = getRootModelFile();
+									
+					//// controlli sul model file
+					if (fileName!=null && fileName.length() == 0) {
+						updateStatus("Occorre specificare il percorso del file che contiene il modello principale");
+						return;
+					}
+					
+					if(!validaModello()){
+						updateStatus("Il file scelto deve essere di tipo SERVICEGEN");
 						return;
 					}
 				}
-				
 				updateStatus(null);
+			}
+			
+			
+			
+			/**
+			 * The framework calls this to see if the file is correct.
+			 * <!-- begin-user-doc -->
+			 * <!-- end-user-doc -->
+			 * @generated
+			 */
+			protected boolean validaModello() {
+				boolean res = false;
+				if(this.getRootModelFile()!=null && !this.getRootModelFile().equalsIgnoreCase("")){
+					try {
+						String modPrincFilePath = this.getRootModelFile().toString();
+						URI modPrincFileURI = URI.createPlatformResourceURI(modPrincFilePath, true);
+						ResourceSet resourceSet = new ResourceSetImpl();
+						Resource modPrincResource = resourceSet.createResource(modPrincFileURI);
+						Map<Object, Object> options = new HashMap<Object, Object>();
+						
+						modPrincResource.load(options);
+						
+						EList emfModPrincContent = (EList)modPrincResource.getContents();
+						if ( (emfModPrincContent.get(0)) instanceof SOABEModel){
+							modelloPrincipale = (SOABEModel)emfModPrincContent.get(0);
+							res = true;
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+						return false;
+					}
+				}
+				
+				return res;
+				
 			}
 
 			private void updateStatus(String message) {
 				setErrorMessage(message);
 				setPageComplete(message == null);
+				
 			}
 			
-			/**
-			 * <!-- begin-user-doc -->
-			 * <!-- end-user-doc -->
-			 * @generated NOT
-			 */
-			protected ModifyListener validator =
-				new ModifyListener() {
-					public void modifyText(ModifyEvent e) {
-						setPageComplete(validatePage());
-					}
-				};
 		
-			/**
-			 * <!-- begin-user-doc -->
-			 * <!-- end-user-doc -->
-			 * @generated NOT
-			 */
-			protected boolean validatePage() {
-				//return getInitialObjectName() != null && getEncodings().contains(encodingField.getText());
-				return true; // TODO
-			}
 		
 			/**
 			 * <!-- begin-user-doc -->
@@ -1280,22 +1392,12 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 				return typeName;
 			}
 		
-			/**
-			 * <!-- begin-user-doc -->
-			 * <!-- end-user-doc -->
-			 * @generated NOT
-			 */
-	//		protected Collection<String> getEncodings() {
-	//			if (encodings == null) {
-	//				encodings = new ArrayList<String>();
-	//				for (StringTokenizer stringTokenizer = new StringTokenizer(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_XMLEncodingChoices")); stringTokenizer.hasMoreTokens(); ) {
-	//					encodings.add(stringTokenizer.nextToken());
-	//				}
-	//			}
-	//			return encodings;
-	//		}
+	
 		}
 
+		
+		
+		
 	/**
 	 * The framework calls this to create the contents of the wizard.
 	 * <!-- begin-user-doc -->
@@ -1304,37 +1406,83 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 */
 		@Override
 	public void addPages() {
+			
+		String selectFilePathTmp = "";
+		
+		//PAGINA1:  definizione nome Serviced e Path
 		// Create a page, set the title, and the initial model file name.
-		//
 		newFileCreationPage = new ServicedefModelWizardNewFileCreationPage("Whatever", selection);
 		newFileCreationPage.setTitle(Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicedefModelWizard_label"));
 		newFileCreationPage.setDescription(Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicedefModelWizard_description"));
 		newFileCreationPage.setFileName(Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicedefEditorFilenameDefaultBase") + "." + FILE_EXTENSIONS.get(0));
 		addPage(newFileCreationPage);
+		
+		//PAGINA2: definizione ModelObject (una sola opzione Servicedef)
+		initialObjectCreationPage = new ServicedefModelWizardInitialObjectCreationPage("Whatever2");
+		initialObjectCreationPage.setTitle(Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicedefModelWizard_label"));
+		initialObjectCreationPage.setDescription(Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
+		addPage(initialObjectCreationPage);
+		
+		//PAGINA3: associazione a modello principale (SOABEModel)
+		serviceFileRefsPage = new ServicedefModelWizardFileRefsCreationPage("file_refs");
+		serviceFileRefsPage.setTitle("Riferimenti a file");
+		serviceFileRefsPage.setDescription("Inserire i riferimenti ai file referenziati");
+		
+		addPage(serviceFileRefsPage);
+		
+		// PAGINA4: definizione codici e informzioni sul servizio
+		serviceInfoPage = new ServicedefModelWizardServiceInfoCreationPage("service_info");
+		serviceInfoPage.setTitle("Informazioni del servizio");
+		serviceInfoPage.setDescription("Inserire le informazioni principali del servizio da creare (identificativi, tipologia, ...)");
+		addPage(serviceInfoPage);
+		
 
+		//INIZIALIZZAZIONE PAGINE
 		// Try and get the resource selection to determine a current directory for the file dialog.
-		//
 		if (selection != null && !selection.isEmpty()) {
 			// Get the resource...
-			//
 			Object selectedElement = selection.iterator().next();
 			if (selectedElement instanceof IResource) {
 				// Get the resource parent, if its a file.
-				//
 				IResource selectedResource = (IResource)selectedElement;
-				if (selectedResource.getType() == IResource.FILE) {
+				
+				//path selezionato
+				selectFilePathTmp = selectedResource.getFullPath().toPortableString();
+				
+				if (selectedResource.getType() == IResource.FILE) {			
+					//pagina newFileCreationPage  --> path parent (IFolder, IProject)
 					selectedResource = selectedResource.getParent();
+					
+					//pagina serviceFileRefsPage verifica tipo file selezionato
+					URI modPrincFileURI = URI.createPlatformResourceURI(selectFilePathTmp, true);
+					ResourceSet resourceSet = new ResourceSetImpl();
+					Resource modPrincResource = resourceSet.createResource(modPrincFileURI);
+					Map<Object, Object> options = new HashMap<Object, Object>();
+							
+					try {
+						modPrincResource.load(options);
+						EList emfModPrincContent = (EList)modPrincResource.getContents();
+						//se SOABEMODEL
+						if ( ((emfModPrincContent.get(0)) instanceof SOABEModel)){
+							serviceFileRefsPage.setSelectFilePath(selectFilePathTmp);
+							serviceFileRefsPage.setSelectSOABEModel(true);
+						}
+						else{
+							selectFilePathTmp = selectedResource.getFullPath().toPortableString();
+							serviceFileRefsPage.setSelectFilePath(selectFilePathTmp);
+							serviceFileRefsPage.setSelectSOABEModel(false);
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 
 				// This gives us a directory...
-				//
 				if (selectedResource instanceof IFolder || selectedResource instanceof IProject) {
 					// Set this for the container.
-					//
 					newFileCreationPage.setContainerFullPath(selectedResource.getFullPath());
 
 					// Make up a unique new name here.
-					//
 					String defaultModelBaseFilename = Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicedefEditorFilenameDefaultBase");
 					String defaultModelFilenameExtension = FILE_EXTENSIONS.get(0);
 					String modelFilename = defaultModelBaseFilename + "." + defaultModelFilenameExtension;
@@ -1345,25 +1493,6 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 				}
 			}
 		}
-		initialObjectCreationPage = new ServicedefModelWizardInitialObjectCreationPage("Whatever2");
-		initialObjectCreationPage.setTitle(Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicedefModelWizard_label"));
-		initialObjectCreationPage.setDescription(Servicedef_metamodelEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
-		addPage(initialObjectCreationPage);
-		
-//		commonFilesPage = new CommonFilesLocChooserWizardPage(selection);
-//		commonFilesPage.setTitle("Cartella file comuni");
-//		commonFilesPage.setDescription("Selezionare la cartella contenente i file \"commonTNS.guigen\" e \"commonAppdata.guigen\"");
-//		addPage(commonFilesPage);
-		
-//		serviceFileRefsPage = new ServicedefModelWizardFileRefsCreationPage("file_refs");
-//		serviceFileRefsPage.setTitle("Riferimenti a file");
-//		serviceFileRefsPage.setDescription("Inserire i riferimenti ai file referenziati");
-//		addPage(serviceFileRefsPage);
-		
-		serviceInfoPage = new ServicedefModelWizardServiceInfoCreationPage("service_info");
-		serviceInfoPage.setTitle("Informazioni del servizio");
-		serviceInfoPage.setDescription("Inserire le informazioni principali del servizio da creare (identificativi, tipologia, ...)");
-		addPage(serviceInfoPage);
 		
 		
 	}
