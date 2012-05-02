@@ -22,9 +22,13 @@ package it.csi.mddtools.svcorch.presentation;
 
 import it.csi.mddtools.servicedef.Operation;
 import it.csi.mddtools.servicedef.ServiceDef;
+import it.csi.mddtools.servicedef.SrvTypeEnum;
+import it.csi.mddtools.servicegen.SOABEModel;
+import it.csi.mddtools.servicegen.ServiceImpl;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -61,24 +65,44 @@ import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 
 public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 
-	private ServiceDef sercidefOrchestration;
+	private Operation operationOrch;
+	public Operation getOperationOrch() {
+		return operationOrch;
+	}
+
+	public void setOperationOrch(Operation operationOrch) {
+		this.operationOrch = operationOrch;
+	}
+
+	private ServiceDef serviceDefOrch;
+	
+	public ServiceDef getServiceDefOrch() {
+		return serviceDefOrch;
+	}
+
+	public void setServiceDefOrch(ServiceDef serviceDefOrch) {
+		this.serviceDefOrch = serviceDefOrch;
+	}
+
+	private SOABEModel modelloPrincipale;
+
 	private String serviceDefFilePath;
 
 	private Text servicedefFilesContainerText;
-
 	private Button servicedefButtonBrowse;
 
-	
-	private Combo comboOperation;
+	private Combo serviceDefCombo;
 
-	public Combo getComboOperation() {
-		return comboOperation;
-	}
+	private Combo operationCombo;
+	//
+	// public Combo getComboOperation() {
+	// return comboOperation;
+	// }
 
 	private ISelection selection;
 	private Button servicedefButtonLoad;
 
-	//TODO
+	// TODO
 	private static String TITLE_WIZARD = "Selezionare Modello Principale";
 	private static String DESCRIPTION_WIZARD = "Selezionare Modello Principale";
 	private static String LABEL_WIZARD = "Modello Principale";
@@ -107,16 +131,17 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 		GridLayout layout = new GridLayout();
 		container.setLayout(layout);
 		layout.numColumns = 3;
-		layout.verticalSpacing = 9;	
+		layout.verticalSpacing = 9;
 
-		//DEFINZIONE LABEL BOX SELEZIONE 
+		// DEFINZIONE LABEL BOX SELEZIONE
 		Label label = new Label(container, SWT.NULL);
 		label.setText(LABEL_WIZARD);
 
-		//DEFINZIONE BOX SELEZIONE
-		servicedefFilesContainerText = new Text(container, SWT.BORDER | SWT.SINGLE);
+		// DEFINZIONE BOX SELEZIONE
+		servicedefFilesContainerText = new Text(container, SWT.BORDER
+				| SWT.SINGLE);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		servicedefFilesContainerText.setLayoutData(gd);		
+		servicedefFilesContainerText.setLayoutData(gd);
 		servicedefFilesContainerText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				dialogCommonContainerChanged();
@@ -124,71 +149,111 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 			}
 		});
 
-		//DEFINIZIONE PULSANTE BROWSE FOLDER
+		// DEFINIZIONE PULSANTE BROWSE FOLDER
 		servicedefButtonBrowse = new Button(container, SWT.PUSH);
 		servicedefButtonBrowse.setText("Browse...");
 		servicedefButtonBrowse.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				handleBrowseCommonContainer();
 				dialogCommonContainerChanged();
+				
+				if (!validaModelloPrincipale()) {
+					updateStatus("Selezionare un modello di tipo SOABEModel");
+					servicedefButtonLoad.setEnabled(false);
+					serviceDefCombo.setEnabled(false);
+					operationCombo.setEnabled(false);
+					return;
+				}
+				
+				abilitaAssociazioneModello();
+				
 			}
+
+			
 		});
-		
-		//DEFINIZIONE PULSANTE CARICA MODELLO
+
+		// DEFINIZIONE PULSANTE CARICA MODELLO
 		servicedefButtonLoad = new Button(container, SWT.PUSH);
 		servicedefButtonLoad.setText("Carica Modello");
 		servicedefButtonLoad.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if(!validateServiceDefSelected()){
-					updateStatus("Selezionare un modello di tipo Servicedef");
-					return;
-				}
+				if(caricaServiceDefCombo())
+					serviceDefCombo.setEnabled(true);
+				
 			}
 		});
 
 		Label blanck = new Label(container, SWT.NULL);
 		Label blanck2 = new Label(container, SWT.NULL);
-		Label labelServicedefOperation = new Label(container, SWT.NULL);
-		labelServicedefOperation.setText("Operation");
+		Label labelServicedef = new Label(container, SWT.NULL);
+		labelServicedef.setText("Servizio di Orchestrazione");
 
-		//DEFINIZIONE COMBO SCELTA OPERATORE
-		comboOperation = new Combo(container, SWT.BORDER);
+		serviceDefCombo = new Combo(container, SWT.BORDER);
 		{
 			GridData data = new GridData(GridData.FILL_HORIZONTAL);
-			comboOperation.setLayoutData(data);
-			comboOperation.addModifyListener(new ModifyListener() {
+			serviceDefCombo.setLayoutData(data);
+			serviceDefCombo.addModifyListener(new ModifyListener() {
 
 				@Override
 				public void modifyText(ModifyEvent e) {
-					
-					if(getOperationSelected()==null){
-						updateStatus("Selezionare un Operation");
-						return;
-					}	
-					updateStatus(null);
+					operationCombo.removeAll();
+					if (modelloPrincipale != null) {
+						
+						for (ServiceImpl serviceImplTmp : modelloPrincipale.getServiceimplementations()) {
+							ServiceDef serviceDefTmp = serviceImplTmp.getProvides();
+							if (serviceDefTmp.getCodServizio().equalsIgnoreCase(serviceDefCombo.getText())) {
+								serviceDefOrch = serviceDefTmp;
+								operationCombo.setEnabled(true);
+								break;
+							}
+						}
+
+						if(serviceDefOrch!= null){
+							EList<Operation> listaOperation = serviceDefOrch.getOperations();
+							for (Operation operation : listaOperation) {
+								operationCombo.add(operation.getName());
+							}
+						}
+					}
 				}
 			});
+
 		}
 
+		Label blanck3 = new Label(container, SWT.NULL);
+
+		Label labelServicedefOperation = new Label(container, SWT.NULL);
+		labelServicedefOperation.setText("Operation");
+
+		// DEFINIZIONE COMBO SCELTA OPERATORE
+		operationCombo = new Combo(container, SWT.BORDER);
+		{
+			GridData data = new GridData(GridData.FILL_HORIZONTAL);
+			operationCombo.setLayoutData(data);
+			operationCombo.addModifyListener(new ModifyListener() {
+
+				@Override
+				public void modifyText(ModifyEvent e) {
+					if(serviceDefOrch!=null){
+					EList<Operation> listaOperation = serviceDefOrch.getOperations();
+					for (Operation operation : listaOperation) {
+						if(operationCombo.getText().equalsIgnoreCase(operation.getName())){
+							operationOrch = operation;
+							break;
+						}
+					}					
+				}
+				}
+			});
+			
+		}
+
+		
+		
 		initialize();
 		setControl(container);
 	}
 
-	public Operation getOperationSelected() {
-		if(comboOperation!=null && comboOperation.getText()!=null && sercidefOrchestration!=null){
-			EList<Operation> listaOperation = sercidefOrchestration.getOperations();
-			for (Operation operation : listaOperation) {
-				if(operation.getName().equalsIgnoreCase(comboOperation.getText()))
-					return operation;
-			}
-		}
-		return null;
-	}
-
-
-	public ServiceDef getSercidefOrchestration() {
-		return sercidefOrchestration;
-	}
 
 	/**
 	 * Tests if the current workbench selection is a suitable container to use.
@@ -196,15 +261,11 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 
 	private void initialize() {
 		servicedefFilesContainerText.setText(getServiceDefFilePath());
-		if(sercidefOrchestration!=null){
-			EList<Operation> listaOperation = sercidefOrchestration.getOperations();
-			for (Operation operation : listaOperation) {
-				getComboOperation().add(operation.getName());
-			}
-			getComboOperation().setEnabled(true);
-		}
-		else
-			getComboOperation().setEnabled(false);
+		
+		servicedefButtonLoad.setEnabled(false);
+		serviceDefCombo.setEnabled(false);
+		operationCombo.setEnabled(false);
+		
 	}
 
 	/**
@@ -214,32 +275,27 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 
 	private void handleBrowseCommonContainer() {
 
-
-		ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), ResourcesPlugin.getWorkspace().getRoot(), "Scegliere file del modello");
+		ResourceSelectionDialog dialog = new ResourceSelectionDialog(
+				getShell(), ResourcesPlugin.getWorkspace().getRoot(),
+				"Scegliere file del modello");
 		if (dialog.open() == ResourceSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
-			if (result.length >0 && result[0] instanceof IFile) {
-				String modelFileSelected = ((IFile) result[0]).getFullPath().toString(); 
+			if (result.length > 0 && result[0] instanceof IFile) {
+				String modelFileSelected = ((IFile) result[0]).getFullPath()
+						.toString();
 				servicedefFilesContainerText.setText(modelFileSelected);
 			}
 		}
 	}
-
-
 
 	/**
 	 * Validazione Selezione Text
 	 */
 
 	private void dialogCommonContainerChanged() {
-
+		
 		IResource servicedefRes = ResourcesPlugin.getWorkspace().getRoot()
 				.findMember(new Path(getServicedefFilesContainerText()));
-
-		if (servicedefRes != null && !(servicedefRes.getType() == IResource.FILE)){
-			updateStatus("Selezionare un file valido");
-			return;	
-		}
 
 		if (!servicedefRes.isAccessible()) {
 			updateStatus("Il progetto deve essere writable");
@@ -256,54 +312,76 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 	}
 
 	private void updateStatus(String message) {
-		if(servicedefFilesContainerText.isEnabled()){
+		if (servicedefFilesContainerText.isEnabled()) {
 			setErrorMessage(message);
 			setPageComplete(message == null);
-		}
-		else{
+		} else {
 			setErrorMessage("");
 			setPageComplete(true);
 		}
 	}
 
+	private boolean caricaServiceDefCombo() {
 
-	private boolean validateServiceDefSelected() {
+		boolean res = false;
+		if(modelloPrincipale!=null){
+			for (ServiceImpl serviceImplTmp : modelloPrincipale
+					.getServiceimplementations()) {
+				ServiceDef serviceDefTmp = serviceImplTmp.getProvides();
+				if (serviceDefTmp.getServiceType().getName()
+						.equalsIgnoreCase(SrvTypeEnum.ORCH.getName())) {
+					serviceDefCombo.add(serviceDefTmp.getCodServizio());
+					res = true;
+				}
+			}		
+		}
+		return res;
+
+	}
+
+	private void abilitaAssociazioneModello(){
+		servicedefButtonLoad.setEnabled(true);
+		
+	}
+	
+	private boolean validaModelloPrincipale() {
 		boolean res = false;
 
-		if(!getServicedefFilesContainerText().equalsIgnoreCase("")){
+		if (!getServicedefFilesContainerText().equalsIgnoreCase("")) {
 			try {
-
-				URI modPrincFileURI = URI.createPlatformResourceURI(getServicedefFilesContainerText(), true);
+				//CLEAN COMBO 
+				serviceDefCombo.removeAll();
+				operationCombo.removeAll();
+				
+				//CARICO RESOURCES
+				URI modPrincFileURI = URI.createPlatformResourceURI(
+						getServicedefFilesContainerText(), true);
 				ResourceSet resourceSet = new ResourceSetImpl();
-				Resource modPrincResource = resourceSet.createResource(modPrincFileURI);
+				Resource modPrincResource = resourceSet
+						.createResource(modPrincFileURI);
 				Map<Object, Object> options = new HashMap<Object, Object>();
 
 				modPrincResource.load(options);
 
-				EList emfModPrincContent = (EList)modPrincResource.getContents();
-				if ( (emfModPrincContent.get(0)) instanceof ServiceDef){
-					sercidefOrchestration = (ServiceDef)(emfModPrincContent.get(0));					
-					EList<Operation> listaOperation = sercidefOrchestration.getOperations();
-					comboOperation.removeAll();
-					for (Operation operation : listaOperation) {
-						comboOperation.add(operation.getName());
-					}
-
-					comboOperation.setEnabled(true);
+				EList emfModPrincContent = (EList) modPrincResource
+						.getContents();
+				
+				//TEST TIPO RESOURCES SELEZIONATO
+				if ((emfModPrincContent.get(0)) instanceof SOABEModel) {
+					modelloPrincipale = (SOABEModel) (emfModPrincContent.get(0));
 					res = true;
 				}
-				else{
-					comboOperation.setEnabled(false);
-				}
+
 			} catch (IOException e) {
 				e.printStackTrace();
 				return false;
 			}
 		}
-		return res;
 
+		return res;
+		
 	}
-	
+
 	public String getServicedefFilesContainerText() {
 		return servicedefFilesContainerText != null ? servicedefFilesContainerText
 				.getText() : "";
@@ -315,10 +393,6 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 
 	public String getServiceDefFilePath() {
 		return serviceDefFilePath;
-	}
-
-	public void setSercidefOrchestration(ServiceDef sercidefOrchestration) {
-		this.sercidefOrchestration = sercidefOrchestration;
 	}
 
 }

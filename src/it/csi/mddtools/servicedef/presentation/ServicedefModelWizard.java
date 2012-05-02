@@ -30,7 +30,9 @@ import it.csi.mddtools.servicedef.ServicedefPackage;
 import it.csi.mddtools.servicedef.SrvTypeEnum;
 import it.csi.mddtools.servicedef.Types;
 import it.csi.mddtools.servicedef.provider.Servicedef_metamodelEditPlugin;
+import it.csi.mddtools.servicegen.FlowModelImplCartridge;
 import it.csi.mddtools.servicegen.ManualImplCartridge;
+import it.csi.mddtools.servicegen.OrchestrationFlowCompositeSC;
 import it.csi.mddtools.servicegen.ResourceBasedSimpleSC;
 import it.csi.mddtools.servicegen.SOABEModel;
 import it.csi.mddtools.servicegen.ServiceImpl;
@@ -365,14 +367,27 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 									//CREARE SERVICE IMPL
 									ServiceImpl serviceImpl = ServicegenFactory.eINSTANCE.createServiceImpl();
 									//DEF SERVICEDEF
-									serviceImpl.setProvides(serviceDef);								
-									//DEF BASED RESOURCE
-									ResourceBasedSimpleSC resourceBasedSimpleSC = ServicegenFactory.eINSTANCE.createResourceBasedSimpleSC();
-									serviceImpl.setServiceComponent(resourceBasedSimpleSC);
-									//DEF MANUAL CARTRIDGE 
-									ManualImplCartridge manualImplCartridge = ServicegenFactory.eINSTANCE.createManualImplCartridge();
-									manualImplCartridge.setUseInjectedPojo(true);
-									serviceImpl.setImplCartridge(manualImplCartridge);
+									serviceImpl.setProvides(serviceDef);	
+									
+									if(serviceDef.getServiceType().getName().equalsIgnoreCase(SrvTypeEnum.APPL.getName())){
+										//DEF BASED RESOURCE
+										ResourceBasedSimpleSC resourceBasedSimpleSC = ServicegenFactory.eINSTANCE.createResourceBasedSimpleSC();
+										serviceImpl.setServiceComponent(resourceBasedSimpleSC);
+										//DEF MANUAL CARTRIDGE 
+										ManualImplCartridge manualImplCartridge = ServicegenFactory.eINSTANCE.createManualImplCartridge();
+										manualImplCartridge.setUseInjectedPojo(true);
+										serviceImpl.setImplCartridge(manualImplCartridge);
+									}
+									else{
+										//DEF BASED RESOURCE
+										OrchestrationFlowCompositeSC orchestrationFlowCompositeSC = ServicegenFactory.eINSTANCE.createOrchestrationFlowCompositeSC();
+										serviceImpl.setServiceComponent(orchestrationFlowCompositeSC);
+										//DEF MANUAL CARTRIDGE 
+										FlowModelImplCartridge flowModelImplCartridge = ServicegenFactory.eINSTANCE.createFlowModelImplCartridge();
+										
+										serviceImpl.setImplCartridge(flowModelImplCartridge);
+									}
+									
 
 									//ADD SERVICEIMPL al modello principale
 									modPrincModule.getServiceimplementations().add(serviceImpl);

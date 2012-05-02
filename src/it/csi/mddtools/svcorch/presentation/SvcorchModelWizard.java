@@ -271,10 +271,10 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 								Orchestration orchestration = (Orchestration) rootObject;
 
 								//SET SERVIZIO
-								ServiceDef service = orchestrationFilesLocChooserWizardPage.getSercidefOrchestration();
+								ServiceDef service = orchestrationFilesLocChooserWizardPage.getServiceDefOrch();
 								orchestration.setService(service);
 								//SET OPERATION
-								Operation operation = orchestrationFilesLocChooserWizardPage.getOperationSelected();
+								Operation operation = orchestrationFilesLocChooserWizardPage.getOperationOrch();
 								orchestration.setOperation(operation);
 
 								//DEF DATASLOTS
@@ -282,7 +282,7 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 
 								//SET ReturnSLOT e DATASLOT
 								DataSlot dataSlotRT = SvcorchFactory.eINSTANCE.createDataSlot();
-								dataSlotRT.setType(operation.getReturnType());
+//								dataSlotRT.setType(operation.getReturnType());
 								dataSlotRT.setName("result");
 
 								//ADD DataSlots
@@ -718,7 +718,7 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 					EList emfModPrincContent = (EList)modPrincResource.getContents();
 					if ( (emfModPrincContent.get(0)) instanceof ServiceDef){
 						sercidefOrchestration = (ServiceDef)(emfModPrincContent.get(0));
-						orchestrationFilesLocChooserWizardPage.setSercidefOrchestration(sercidefOrchestration);
+//						orchestrationFilesLocChooserWizardPage.setSercidefOrchestration(sercidefOrchestration);
 					
 					}
 					else {
