@@ -481,6 +481,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 				initialObjectField.select(0);
 			}
 			initialObjectField.addModifyListener(validator);
+			initialObjectField.setEnabled(false);
 
 			Label encodingLabel = new Label(composite, SWT.LEFT);
 			{
@@ -817,7 +818,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 			
 			Label codeServerLabel = new Label(composite, SWT.LEFT);
 			{
-				codeServerLabel.setText("Server Code");
+				codeServerLabel.setText("Application Server Target");
 				GridData data = new GridData();
 				data.horizontalAlignment = GridData.FILL;
 				codeServerLabel.setLayoutData(data);

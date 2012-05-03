@@ -28,7 +28,6 @@ import it.csi.mddtools.servicegen.ServiceImpl;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -65,47 +64,45 @@ import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 
 public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 
+	private ISelection selection;
+	
+	// TODO definire label
+	private static String TITLE_WIZARD = "Selezionare Modello Principale";
+	private static String DESCRIPTION_WIZARD = "Selezionare Modello Principale";
+	private static String LABEL_WIZARD = "Modello Principale";
+	
+	private Text fileSOABModelContainerText;
+	
+	private Button modelButtonBrowse;
+	
+	private Button modelButtonLoad;
+
+	private Combo serviceDefCombo;
+
+	private Combo operationCombo;
+
+	private SOABEModel modelloPrincipale;
+	
+	private ServiceDef serviceDefOrch;
+	
 	private Operation operationOrch;
+
+	
+	public ServiceDef getServiceDefOrch() {
+		return serviceDefOrch;
+	}
+	
+
 	public Operation getOperationOrch() {
 		return operationOrch;
 	}
+
 
 	public void setOperationOrch(Operation operationOrch) {
 		this.operationOrch = operationOrch;
 	}
 
-	private ServiceDef serviceDefOrch;
-	
-	public ServiceDef getServiceDefOrch() {
-		return serviceDefOrch;
-	}
 
-	public void setServiceDefOrch(ServiceDef serviceDefOrch) {
-		this.serviceDefOrch = serviceDefOrch;
-	}
-
-	private SOABEModel modelloPrincipale;
-
-	private String serviceDefFilePath;
-
-	private Text servicedefFilesContainerText;
-	private Button servicedefButtonBrowse;
-
-	private Combo serviceDefCombo;
-
-	private Combo operationCombo;
-	//
-	// public Combo getComboOperation() {
-	// return comboOperation;
-	// }
-
-	private ISelection selection;
-	private Button servicedefButtonLoad;
-
-	// TODO
-	private static String TITLE_WIZARD = "Selezionare Modello Principale";
-	private static String DESCRIPTION_WIZARD = "Selezionare Modello Principale";
-	private static String LABEL_WIZARD = "Modello Principale";
 
 	/**
 	 * Constructor for SampleNewWizardPage.
@@ -138,53 +135,32 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 		label.setText(LABEL_WIZARD);
 
 		// DEFINZIONE BOX SELEZIONE
-		servicedefFilesContainerText = new Text(container, SWT.BORDER
+		fileSOABModelContainerText = new Text(container, SWT.BORDER
 				| SWT.SINGLE);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		servicedefFilesContainerText.setLayoutData(gd);
-		servicedefFilesContainerText.addModifyListener(new ModifyListener() {
+		fileSOABModelContainerText.setLayoutData(gd);
+		fileSOABModelContainerText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				dialogCommonContainerChanged();
+				updateStatus(null);
 
 			}
 		});
 
 		// DEFINIZIONE PULSANTE BROWSE FOLDER
-		servicedefButtonBrowse = new Button(container, SWT.PUSH);
-		servicedefButtonBrowse.setText("Browse...");
-		servicedefButtonBrowse.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				handleBrowseCommonContainer();
-				dialogCommonContainerChanged();
-				
-				if (!validaModelloPrincipale()) {
-					updateStatus("Selezionare un modello di tipo SOABEModel");
-					servicedefButtonLoad.setEnabled(false);
-					serviceDefCombo.setEnabled(false);
-					operationCombo.setEnabled(false);
-					return;
-				}
-				
-				abilitaAssociazioneModello();
-				
-			}
-
-			
-		});
+		modelButtonBrowse = new Button(container, SWT.PUSH);
+		modelButtonBrowse.setText("Browse...");
+		modelButtonBrowse.addSelectionListener(validatorBrowse);
 
 		// DEFINIZIONE PULSANTE CARICA MODELLO
-		servicedefButtonLoad = new Button(container, SWT.PUSH);
-		servicedefButtonLoad.setText("Carica Modello");
-		servicedefButtonLoad.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				if(caricaServiceDefCombo())
-					serviceDefCombo.setEnabled(true);
-				
-			}
-		});
+		modelButtonLoad = new Button(container, SWT.PUSH);
+		modelButtonLoad.setText("Carica Modello");
+		modelButtonLoad.addSelectionListener(validatorLoad);
 
+		//TODO si può fare in altro modo???
+		//SPAZI
 		Label blanck = new Label(container, SWT.NULL);
 		Label blanck2 = new Label(container, SWT.NULL);
+		
 		Label labelServicedef = new Label(container, SWT.NULL);
 		labelServicedef.setText("Servizio di Orchestrazione");
 
@@ -192,32 +168,7 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 		{
 			GridData data = new GridData(GridData.FILL_HORIZONTAL);
 			serviceDefCombo.setLayoutData(data);
-			serviceDefCombo.addModifyListener(new ModifyListener() {
-
-				@Override
-				public void modifyText(ModifyEvent e) {
-					operationCombo.removeAll();
-					if (modelloPrincipale != null) {
-						
-						for (ServiceImpl serviceImplTmp : modelloPrincipale.getServiceimplementations()) {
-							ServiceDef serviceDefTmp = serviceImplTmp.getProvides();
-							if (serviceDefTmp.getCodServizio().equalsIgnoreCase(serviceDefCombo.getText())) {
-								serviceDefOrch = serviceDefTmp;
-								operationCombo.setEnabled(true);
-								break;
-							}
-						}
-
-						if(serviceDefOrch!= null){
-							EList<Operation> listaOperation = serviceDefOrch.getOperations();
-							for (Operation operation : listaOperation) {
-								operationCombo.add(operation.getName());
-							}
-						}
-					}
-				}
-			});
-
+			serviceDefCombo.addModifyListener(serviceDefComboValidator);
 		}
 
 		Label blanck3 = new Label(container, SWT.NULL);
@@ -230,26 +181,9 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 		{
 			GridData data = new GridData(GridData.FILL_HORIZONTAL);
 			operationCombo.setLayoutData(data);
-			operationCombo.addModifyListener(new ModifyListener() {
-
-				@Override
-				public void modifyText(ModifyEvent e) {
-					if(serviceDefOrch!=null){
-					EList<Operation> listaOperation = serviceDefOrch.getOperations();
-					for (Operation operation : listaOperation) {
-						if(operationCombo.getText().equalsIgnoreCase(operation.getName())){
-							operationOrch = operation;
-							break;
-						}
-					}					
-				}
-				}
-			});
-			
+			operationCombo.addModifyListener(operationComboValidator);
 		}
 
-		
-		
 		initialize();
 		setControl(container);
 	}
@@ -260,14 +194,85 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 	 */
 
 	private void initialize() {
-		servicedefFilesContainerText.setText(getServiceDefFilePath());
 		
-		servicedefButtonLoad.setEnabled(false);
+		//IMPOSTO VALORI DI DEFAULT
+		
+		fileSOABModelContainerText.setText(getFilePathSOABModelSelect());
+		modelButtonLoad.setEnabled(false);
 		serviceDefCombo.setEnabled(false);
 		operationCombo.setEnabled(false);
 		
+		// Se SOABEModel può essere abilitato il load
+		if (validaModelloSelezionato()) 
+			modelButtonLoad.setEnabled(true);
 	}
 
+
+	private void updateStatus(String message) {
+		if (fileSOABModelContainerText.isEnabled()) {
+			setErrorMessage(message);
+			setPageComplete(message == null);
+		} else {
+			setErrorMessage("");
+			setPageComplete(true);
+		}
+	}
+
+	
+
+	private void abilitaAssociazioneModello(){
+		updateStatus(null);
+		modelButtonLoad.setEnabled(true);
+		
+	}
+	
+
+
+	
+	
+	public String getFileSOABModelContainerText() {
+		return fileSOABModelContainerText != null ? fileSOABModelContainerText
+				.getText() : "";
+	}
+
+
+	
+	// BROWSE SELECTION
+	
+	protected SelectionAdapter validatorBrowse = new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			
+			// Default Not Enabled
+			modelButtonLoad.setEnabled(false);
+			serviceDefCombo.setEnabled(false);
+			operationCombo.setEnabled(false);
+			
+			// Browse
+			handleBrowseCommonContainer();
+			
+
+			// Valida Selezione
+			IResource servicedefRes = ResourcesPlugin.getWorkspace().getRoot()
+					.findMember(new Path(getFileSOABModelContainerText()));
+
+			if (!servicedefRes.isAccessible()) {
+				updateStatus("Il progetto deve essere writable");
+				return;
+			}
+
+			if (!validaModelloSelezionato()) {
+				updateStatus("Selezionare un modello di tipo SOABEModel");
+				return;
+			}
+			//SE non ci sono stati KO
+			abilitaAssociazioneModello();
+			
+		}
+
+		
+	};
+
+	
 	/**
 	 * Uses the standard container selection dialog to choose the new value for
 	 * the container field.
@@ -283,45 +288,60 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 			if (result.length > 0 && result[0] instanceof IFile) {
 				String modelFileSelected = ((IFile) result[0]).getFullPath()
 						.toString();
-				servicedefFilesContainerText.setText(modelFileSelected);
+				fileSOABModelContainerText.setText(modelFileSelected);
 			}
 		}
 	}
 
+	
+
+
 	/**
-	 * Validazione Selezione Text
+	 * Verifica se modello sezionato è di tipo SOABEModel return 'true'
+	 * altrimenti 'false' 
+	 * @return boolean
 	 */
-
-	private void dialogCommonContainerChanged() {
+	
+	private boolean validaModelloSelezionato() {
+		boolean res = false;
 		
-		IResource servicedefRes = ResourcesPlugin.getWorkspace().getRoot()
-				.findMember(new Path(getServicedefFilesContainerText()));
-
-		if (!servicedefRes.isAccessible()) {
-			updateStatus("Il progetto deve essere writable");
-			return;
+		if (!getFileSOABModelContainerText().equalsIgnoreCase("")) {
+			//CLEAN COMBO 
+			serviceDefCombo.removeAll();
+			operationCombo.removeAll();
+			
+			//LOAD SOABEModel
+			modelloPrincipale = getSOABEModelByFullPath(getFileSOABModelContainerText());
+			
+			//TEST 
+			if(modelloPrincipale!=null)
+				res = true;
 		}
 
-		if (getServicedefFilesContainerText().length() == 0) {
-			updateStatus("Specificare il path del modello principale");
-			return;
-		}
-
-		else
-			updateStatus(null);
+		return res;
+		
 	}
-
-	private void updateStatus(String message) {
-		if (servicedefFilesContainerText.isEnabled()) {
-			setErrorMessage(message);
-			setPageComplete(message == null);
-		} else {
-			setErrorMessage("");
-			setPageComplete(true);
+	
+	
+	// LOAD SELECTION
+	protected SelectionAdapter validatorLoad = new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			if(loadServiceDefCombo()){
+				serviceDefCombo.setEnabled(true);
+				updateStatus(null);
+			}
+			else
+				updateStatus("Non è possibile caricare Interfacce di Servizio di tipo Orchestrato valide per il Modello Selezionato");
+			
 		}
-	}
+	};
 
-	private boolean caricaServiceDefCombo() {
+	/**
+	 * Dato il SOABEModel --> load ServiceDef di type orch
+	 * Se non è possibile caricare la combo return false
+	 * @return boolean
+	 */
+	private boolean loadServiceDefCombo() {
 
 		boolean res = false;
 		if(modelloPrincipale!=null){
@@ -338,24 +358,79 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 		return res;
 
 	}
+	
+	// SELECTION COMBO Servizi
+	ModifyListener serviceDefComboValidator = new ModifyListener() {
+		@Override
+		public void modifyText(ModifyEvent e) {
+			operationCombo.removeAll();
+			updateStatus(null);
+			if (modelloPrincipale != null) {
 
-	private void abilitaAssociazioneModello(){
-		servicedefButtonLoad.setEnabled(true);
-		
+				for (ServiceImpl serviceImplTmp : modelloPrincipale.getServiceimplementations()) {
+					ServiceDef serviceDefTmp = serviceImplTmp.getProvides();
+					if (serviceDefTmp.getCodServizio().equalsIgnoreCase(serviceDefCombo.getText())) {
+						serviceDefOrch = serviceDefTmp;
+						operationCombo.setEnabled(true);
+						break;
+					}
+				}
+
+				if(serviceDefOrch!= null){
+					EList<Operation> listaOperation = serviceDefOrch.getOperations();
+					for (Operation operation : listaOperation) {
+						operationCombo.add(operation.getName());
+					}
+				}
+
+				else
+					
+				updateStatus("Non è possibile caricare Operation valide per il servizio Selezionato");
+			}
+		}
+	};
+	
+	// SELECTION COMBO Operation
+	ModifyListener operationComboValidator = new ModifyListener() {
+		@Override
+		public void modifyText(ModifyEvent e) {
+			if(getServiceDefOrch()!=null){
+				EList<Operation> listaOperation = getServiceDefOrch().getOperations();
+				for (Operation operation : listaOperation) {
+					if(operationCombo.getText().equalsIgnoreCase(operation.getName())){
+						operationOrch = operation;
+						break;
+					}
+				}					
+			}
+		}
+	};
+	
+	// Definizione Default PathSOABModel
+	private String filePathSOABModelSelect;
+	public String getFilePathSOABModelSelect() {
+		return filePathSOABModelSelect;
+	}
+
+	public void setFilePathSOABModelSelect(String filePathSOABModelSelect) {
+		this.filePathSOABModelSelect = filePathSOABModelSelect;
 	}
 	
-	private boolean validaModelloPrincipale() {
-		boolean res = false;
+	
 
-		if (!getServicedefFilesContainerText().equalsIgnoreCase("")) {
+	/**
+	 * Se TIPO RESOURCES SELEZIONATO non di tipo SOABEModel return Null
+	 * @param fullPath
+	 * @return SOABEModel
+	 */
+	private  SOABEModel getSOABEModelByFullPath(String fullPath) {
+		SOABEModel modelloPrincipale = null;
+
+		if (!fullPath.equalsIgnoreCase("")) {
 			try {
-				//CLEAN COMBO 
-				serviceDefCombo.removeAll();
-				operationCombo.removeAll();
-				
+								
 				//CARICO RESOURCES
-				URI modPrincFileURI = URI.createPlatformResourceURI(
-						getServicedefFilesContainerText(), true);
+				URI modPrincFileURI = URI.createPlatformResourceURI(fullPath, true);
 				ResourceSet resourceSet = new ResourceSetImpl();
 				Resource modPrincResource = resourceSet
 						.createResource(modPrincFileURI);
@@ -363,36 +438,21 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 
 				modPrincResource.load(options);
 
-				EList emfModPrincContent = (EList) modPrincResource
-						.getContents();
+				EList emfModPrincContent = (EList) modPrincResource.getContents();
 				
 				//TEST TIPO RESOURCES SELEZIONATO
 				if ((emfModPrincContent.get(0)) instanceof SOABEModel) {
 					modelloPrincipale = (SOABEModel) (emfModPrincContent.get(0));
-					res = true;
 				}
 
 			} catch (IOException e) {
 				e.printStackTrace();
-				return false;
+				return null;
 			}
 		}
 
-		return res;
+		return modelloPrincipale;
 		
-	}
-
-	public String getServicedefFilesContainerText() {
-		return servicedefFilesContainerText != null ? servicedefFilesContainerText
-				.getText() : "";
-	}
-
-	public void setServiceDefFilePath(String serviceDefFilePath) {
-		this.serviceDefFilePath = serviceDefFilePath;
-	}
-
-	public String getServiceDefFilePath() {
-		return serviceDefFilePath;
 	}
 
 }

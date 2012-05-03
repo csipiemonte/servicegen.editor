@@ -24,6 +24,7 @@ package it.csi.mddtools.svcorch.presentation;
 import it.csi.mddtools.servicedef.Operation;
 import it.csi.mddtools.servicedef.Param;
 import it.csi.mddtools.servicedef.ServiceDef;
+import it.csi.mddtools.servicegen.SOABEModel;
 import it.csi.mddtools.servicegen.genutils.CodeGenerationUtils;
 import it.csi.mddtools.svcorch.DataSlot;
 import it.csi.mddtools.svcorch.DataSlots;
@@ -282,7 +283,7 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 
 								//SET ReturnSLOT e DATASLOT
 								DataSlot dataSlotRT = SvcorchFactory.eINSTANCE.createDataSlot();
-//								dataSlotRT.setType(operation.getReturnType());
+								dataSlotRT.setType(operation.getReturnType());
 								dataSlotRT.setName("result");
 
 								//ADD DataSlots
@@ -508,6 +509,7 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 				initialObjectField.select(0);
 			}
 			initialObjectField.addModifyListener(validator);
+			initialObjectField.setEnabled(false);
 
 			Label encodingLabel = new Label(composite, SWT.LEFT);
 			{
@@ -640,18 +642,30 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-		@Override
+	@Override
 	public void addPages() {
+
+		//PAGINA 1: create NewFile	
 		// Create a page, set the title, and the initial model file name.
-		//
 		newFileCreationPage = new SvcorchModelWizardNewFileCreationPage("Whatever", selection);
 		newFileCreationPage.setTitle(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchModelWizard_label"));
 		newFileCreationPage.setDescription(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchModelWizard_description"));
 		newFileCreationPage.setFileName(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchEditorFilenameDefaultBase") + "." + FILE_EXTENSIONS.get(0));
 		addPage(newFileCreationPage);
 
+		//PAGINA 2: selezione modello (SVCORC)
+		initialObjectCreationPage = new SvcorchModelWizardInitialObjectCreationPage("Whatever2");
+		initialObjectCreationPage.setTitle(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchModelWizard_label"));
+		initialObjectCreationPage.setDescription(SvcorchEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
+		addPage(initialObjectCreationPage);
+
+		//PAGINA 3: definzione servizio orchestrazione (associazione SOABEModel-> ServiceDef --> Operation)
+		orchestrationFilesLocChooserWizardPage = new OrchestrationFilesLocChooserWizardPage(selection);	
+		addPage(orchestrationFilesLocChooserWizardPage);
+
+		//INIZIALIZZAZIONE DATI BY 'selection'
 		// Try and get the resource selection to determine a current directory for the file dialog.
-		//
+		boolean isSOABEModelSelect = false;
 		if (selection != null && !selection.isEmpty()) {
 			// Get the resource...
 			//
@@ -660,7 +674,17 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 				// Get the resource parent, if its a file.
 				//
 				IResource selectedResource = (IResource)selectedElement;
+				
+				//Test selezione SOABEModel
 				if (selectedResource.getType() == IResource.FILE) {
+					String filePathTmp= "";
+					filePathTmp = selectedResource.getFullPath().toPortableString();
+					
+					isSOABEModelSelect = getSOABEModelByFullPath(filePathTmp);
+					if(isSOABEModelSelect)
+						orchestrationFilesLocChooserWizardPage.setFilePathSOABModelSelect(filePathTmp);
+					
+					//RISALGO AL PADRE
 					selectedResource = selectedResource.getParent();
 				}
 
@@ -668,9 +692,11 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 				//
 				if (selectedResource instanceof IFolder || selectedResource instanceof IProject) {
 					// Set this for the container.
-					//
+					//Definizione --> CONTAINER NewFile
 					newFileCreationPage.setContainerFullPath(selectedResource.getFullPath());
-
+					
+					if(!isSOABEModelSelect)
+						orchestrationFilesLocChooserWizardPage.setFilePathSOABModelSelect(selectedResource.getFullPath().toPortableString());
 					// Make up a unique new name here.
 					//
 					String defaultModelBaseFilename = SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchEditorFilenameDefaultBase");
@@ -679,59 +705,12 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 					for (int i = 1; ((IContainer)selectedResource).findMember(modelFilename) != null; ++i) {
 						modelFilename = defaultModelBaseFilename + i + "." + defaultModelFilenameExtension;
 					}
+					//Definizione --> NAME NewFile
 					newFileCreationPage.setFileName(modelFilename);
 				}
 			}
-		
-		
-		
-		
-			initialObjectCreationPage = new SvcorchModelWizardInitialObjectCreationPage("Whatever2");
-			initialObjectCreationPage.setTitle(SvcorchEditorPlugin.INSTANCE.getString("_UI_SvcorchModelWizard_label"));
-			initialObjectCreationPage.setDescription(SvcorchEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
-			addPage(initialObjectCreationPage);
 
-			orchestrationFilesLocChooserWizardPage = new OrchestrationFilesLocChooserWizardPage(selection);	
-			String servicedefFilePathTmp= defineServicedefFile();		
-			orchestrationFilesLocChooserWizardPage.setServiceDefFilePath(servicedefFilePathTmp);
-			addPage(orchestrationFilesLocChooserWizardPage);
 		}
-	}
-
-	private String defineServicedefFile() {
-		String servicedefFilePathTmp= "";
-		if (selection != null && !selection.isEmpty()) {
-			
-			ServiceDef sercidefOrchestration;
-			IResource selectedResource = (IResource)selection.iterator().next();;
-			servicedefFilePathTmp = selectedResource.getFullPath().toPortableString();
-
-			if (selectedResource.getType() == IResource.FILE) {		
-				try {
-					URI modPrincFileURI = URI.createPlatformResourceURI(servicedefFilePathTmp, true);
-					ResourceSet resourceSet = new ResourceSetImpl();
-					Resource modPrincResource = resourceSet.createResource(modPrincFileURI);
-					Map<Object, Object> options = new HashMap<Object, Object>();
-
-					modPrincResource.load(options);
-
-					EList emfModPrincContent = (EList)modPrincResource.getContents();
-					if ( (emfModPrincContent.get(0)) instanceof ServiceDef){
-						sercidefOrchestration = (ServiceDef)(emfModPrincContent.get(0));
-//						orchestrationFilesLocChooserWizardPage.setSercidefOrchestration(sercidefOrchestration);
-					
-					}
-					else {
-						selectedResource = selectedResource.getParent();
-						servicedefFilePathTmp = selectedResource.getFullPath().toPortableString();
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		return servicedefFilePathTmp;
 	}
 
 	/**
@@ -742,6 +721,43 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 	 */
 	public IFile getModelFile() {
 		return newFileCreationPage.getModelFile();
+	}
+	
+	/**
+	 * Se TIPO RESOURCES SELEZIONATO non di tipo SOABEModel return false
+	 * @param fullPath
+	 * @return boolean
+	 */
+	private  boolean getSOABEModelByFullPath(String fullPath) {
+		boolean res = false;
+
+		if (!fullPath.equalsIgnoreCase("")) {
+			try {
+								
+				//CARICO RESOURCES
+				URI modPrincFileURI = URI.createPlatformResourceURI(fullPath, true);
+				ResourceSet resourceSet = new ResourceSetImpl();
+				Resource modPrincResource = resourceSet
+						.createResource(modPrincFileURI);
+				Map<Object, Object> options = new HashMap<Object, Object>();
+
+				modPrincResource.load(options);
+
+				EList emfModPrincContent = (EList) modPrincResource.getContents();
+				
+				//TEST TIPO RESOURCES SELEZIONATO
+				if ((emfModPrincContent.get(0)) instanceof SOABEModel) {
+					res = true;
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+
+		return res;
+		
 	}
 
 }

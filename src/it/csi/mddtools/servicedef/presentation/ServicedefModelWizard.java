@@ -580,6 +580,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 				initialObjectField.select(0);
 			}
 			initialObjectField.addModifyListener(validator);
+			initialObjectField.setEnabled(false);
 
 			Label encodingLabel = new Label(composite, SWT.LEFT);
 			{
