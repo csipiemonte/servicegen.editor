@@ -97,6 +97,10 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 		return operationOrch;
 	}
 
+	public SOABEModel getModelloPrincipale() {
+		return modelloPrincipale;
+	}
+
 
 	public void setOperationOrch(Operation operationOrch) {
 		this.operationOrch = operationOrch;
@@ -141,7 +145,7 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 		fileSOABModelContainerText.setLayoutData(gd);
 		fileSOABModelContainerText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				updateStatus(null);
+				setMessage(null);
 
 			}
 		});
@@ -196,7 +200,7 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 	private void initialize() {
 		
 		//IMPOSTO VALORI DI DEFAULT
-		
+		setPageComplete(false);
 		fileSOABModelContainerText.setText(getFilePathSOABModelSelect());
 		modelButtonLoad.setEnabled(false);
 		serviceDefCombo.setEnabled(false);
@@ -207,38 +211,18 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 			modelButtonLoad.setEnabled(true);
 	}
 
-
-	private void updateStatus(String message) {
-		if (fileSOABModelContainerText.isEnabled()) {
-			setErrorMessage(message);
-			setPageComplete(message == null);
-		} else {
-			setErrorMessage("");
-			setPageComplete(true);
-		}
-	}
-
-	
-
 	private void abilitaAssociazioneModello(){
-		updateStatus(null);
+		setMessage(null);
 		modelButtonLoad.setEnabled(true);
 		
 	}
-	
-
-
-	
 	
 	public String getFileSOABModelContainerText() {
 		return fileSOABModelContainerText != null ? fileSOABModelContainerText
 				.getText() : "";
 	}
 
-
-	
 	// BROWSE SELECTION
-	
 	protected SelectionAdapter validatorBrowse = new SelectionAdapter() {
 		public void widgetSelected(SelectionEvent e) {
 			
@@ -250,18 +234,17 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 			// Browse
 			handleBrowseCommonContainer();
 			
-
 			// Valida Selezione
 			IResource servicedefRes = ResourcesPlugin.getWorkspace().getRoot()
 					.findMember(new Path(getFileSOABModelContainerText()));
 
 			if (!servicedefRes.isAccessible()) {
-				updateStatus("Il progetto deve essere writable");
+				setMessage("Il progetto deve essere writable");
 				return;
 			}
 
 			if (!validaModelloSelezionato()) {
-				updateStatus("Selezionare un modello di tipo SOABEModel");
+				setMessage("Selezionare un modello di tipo SOABEModel");
 				return;
 			}
 			//SE non ci sono stati KO
@@ -269,7 +252,6 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 			
 		}
 
-		
 	};
 
 	
@@ -328,10 +310,10 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 		public void widgetSelected(SelectionEvent e) {
 			if(loadServiceDefCombo()){
 				serviceDefCombo.setEnabled(true);
-				updateStatus(null);
+				setMessage(null);
 			}
 			else
-				updateStatus("Non è possibile caricare Interfacce di Servizio di tipo Orchestrato valide per il Modello Selezionato");
+				setMessage("Non è possibile caricare Interfacce di Servizio di tipo Orchestrato valide per il Modello Selezionato");
 			
 		}
 	};
@@ -364,7 +346,7 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 		@Override
 		public void modifyText(ModifyEvent e) {
 			operationCombo.removeAll();
-			updateStatus(null);
+			setMessage(null);
 			if (modelloPrincipale != null) {
 
 				for (ServiceImpl serviceImplTmp : modelloPrincipale.getServiceimplementations()) {
@@ -385,7 +367,7 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 
 				else
 					
-				updateStatus("Non è possibile caricare Operation valide per il servizio Selezionato");
+					setMessage("Non è possibile caricare Operation valide per il servizio Selezionato");
 			}
 		}
 	};
@@ -399,6 +381,7 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 				for (Operation operation : listaOperation) {
 					if(operationCombo.getText().equalsIgnoreCase(operation.getName())){
 						operationOrch = operation;
+						setPageComplete(true);
 						break;
 					}
 				}					

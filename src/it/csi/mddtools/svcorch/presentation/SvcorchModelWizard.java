@@ -24,7 +24,10 @@ package it.csi.mddtools.svcorch.presentation;
 import it.csi.mddtools.servicedef.Operation;
 import it.csi.mddtools.servicedef.Param;
 import it.csi.mddtools.servicedef.ServiceDef;
+import it.csi.mddtools.servicegen.OrchestrationFlowCompositeSC;
 import it.csi.mddtools.servicegen.SOABEModel;
+import it.csi.mddtools.servicegen.ServiceComponent;
+import it.csi.mddtools.servicegen.ServiceImpl;
 import it.csi.mddtools.servicegen.genutils.CodeGenerationUtils;
 import it.csi.mddtools.svcorch.DataSlot;
 import it.csi.mddtools.svcorch.DataSlots;
@@ -271,11 +274,35 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 
 								Orchestration orchestration = (Orchestration) rootObject;
 
-								//SET SERVIZIO
 								ServiceDef service = orchestrationFilesLocChooserWizardPage.getServiceDefOrch();
-								orchestration.setService(service);
-								//SET OPERATION
 								Operation operation = orchestrationFilesLocChooserWizardPage.getOperationOrch();
+								
+								URI modPrincFileURI = URI.createPlatformResourceURI(orchestrationFilesLocChooserWizardPage.getFileSOABModelContainerText(), true);
+								Resource modPrincResource = resourceSet.createResource(modPrincFileURI);
+								modPrincResource.load(options);
+								
+								EList emfModPrincContent = (EList)modPrincResource.getContents();
+								SOABEModel model = (SOABEModel)(emfModPrincContent.get(0));
+								//ASSOCIO ORCHESTRAZIONE AL MODELLO PRINCIPALE
+								List<ServiceImpl> srvimplList = model.getServiceimplementations();
+								String codServizioOrch = service.getCodServizio();
+								OrchestrationFlowCompositeSC orchSC = null;
+								for (ServiceImpl serviceImplTmp : srvimplList) {
+									ServiceComponent sc = serviceImplTmp.getServiceComponent();
+									if(sc instanceof OrchestrationFlowCompositeSC){
+										if(codServizioOrch.equalsIgnoreCase(serviceImplTmp.getProvides().getCodServizio())){
+											orchSC = (OrchestrationFlowCompositeSC) sc;
+											orchSC.getOrchestrations().add(orchestration);
+											modPrincResource.save(options);
+											break;
+										}
+									}
+								}
+
+								//SET SERVIZIO
+								orchestration.setService(service);
+								
+								//SET OPERATION
 								orchestration.setOperation(operation);
 
 								//DEF DATASLOTS
@@ -328,6 +355,8 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 
 								//ADD Nodes
 								orchestration.setNodes(nodes);
+								
+								
 
 							}
 
