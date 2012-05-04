@@ -23,6 +23,7 @@ package it.csi.mddtools.servicegen.presentation;
 import it.csi.mddtools.appresources.ResourceSet;
 import it.csi.mddtools.appresources.presentation.AppresourcesModelWizard;
 import it.csi.mddtools.servicegen.presentation.common.WizardContext;
+import it.csi.mddtools.servicegen.presentation.common.WizardMessage;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -66,9 +68,9 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 	private ResourceSet resourceSet;
 	private Text resourceSetFileContainerText;
 	private Button selectResourceSetCheck;
-	
+
 	private WizardContext wizardContext;
-	
+
 	public WizardContext getWizardContext() {
 		return wizardContext;
 	}
@@ -80,23 +82,25 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 	public ResourceSet getResourceSet() {
 		return resourceSet;
 	}
-	
-	public boolean associaResourceSet() {
-		return selectResourceSetCheck!=null ? selectResourceSetCheck.getSelection() : false;
-	}
 
+	public boolean associaResourceSet() {
+		return selectResourceSetCheck != null ? selectResourceSetCheck
+				.getSelection() : false;
+	}
 
 	/**
 	 * Constructor for SampleNewWizardPage.
-	 * @param workbench 
+	 * 
+	 * @param workbench
 	 * 
 	 * @param pageName
 	 */
-	public ResourceSetFilesLocChooserWizardPage(IStructuredSelection selection, IWorkbench workbench) {
+	public ResourceSetFilesLocChooserWizardPage(IStructuredSelection selection,
+			IWorkbench workbench) {
 		super("wizardPage");
 		this.selection = selection;
 		this.workbench = workbench;
-		
+
 		setTitle("Associa Resource Set");
 	}
 
@@ -154,21 +158,25 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setMessage(null);
-				AppresourcesModelWizard tmp = new AppresourcesModelWizard();
-				tmp.init(workbench, selection);
-				
-				tmp.setWizardContext(wizardContext);
-				WizardDialog dialog = new WizardDialog(getShell(),tmp);
-				dialog.open();
-				
-				WizardContext wr = tmp.getWizardContext();
-				resourceSet = (ResourceSet) wr.getCreatedObject();		
-				
-				String fullPath = wr.getCreateObjectContainerFullPath() +"/"+wr.getCreateObjectFileName();
-				resourceSetFileContainerText.setText(fullPath);
-				
-				
-				
+				IWizard wiz = wizardContext.getWizard();
+				if(wiz instanceof ServicegenModelWizard) {
+					ServicegenModelWizard servicegenModelWizard =(ServicegenModelWizard)wiz;
+					String fileName = servicegenModelWizard.newFileCreationPage.getFileName();
+					String[] arg= fileName.split(servicegenModelWizard.FILE_EXTENSIONS.get(0));
+					String containerFullPath = servicegenModelWizard.newFileCreationPage.getContainerFullPath().toPortableString();
+					WizardMessage wizardMessageInput = new WizardMessage(containerFullPath, arg[0]);
+					AppresourcesModelWizard amw = new AppresourcesModelWizard();
+					amw.init(workbench, selection);				
+					amw.setWizardMessage(wizardMessageInput);
+					WizardDialog dialog = new WizardDialog(getShell(),amw);
+					dialog.open();
+					
+					WizardMessage wizardMessageOutput = amw.getWizardMessage();
+					resourceSet = (ResourceSet) wizardMessageOutput.getCreatedObject();		
+					
+					String fullPath = wizardMessageOutput.getCreateObjectContainerFullPath() +"/"+wizardMessageOutput.getCreateObjectFileName();
+					resourceSetFileContainerText.setText(fullPath+servicegenModelWizard.FILE_EXTENSIONS.get(0));
+				}
 			}
 
 			@Override
@@ -195,35 +203,37 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 		setControl(container);
 	}
 
-
 	/**
 	 * Uses the standard container selection dialog to choose the new value for
 	 * the container field.
 	 */
 
 	private void handleBrowseResourceSet() {
-		
-    
-        ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), ResourcesPlugin.getWorkspace().getRoot(), "Scegliere file del modello");
+
+		ResourceSelectionDialog dialog = new ResourceSelectionDialog(
+				getShell(), ResourcesPlugin.getWorkspace().getRoot(),
+				"Scegliere file del modello");
 		if (dialog.open() == ResourceSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
-			if (result.length >0 && result[0] instanceof IFile) {
-				String modelFileSelected = ((IFile) result[0]).getFullPath().toString(); 
+			if (result.length > 0 && result[0] instanceof IFile) {
+				String modelFileSelected = ((IFile) result[0]).getFullPath()
+						.toString();
 				resourceSetFileContainerText.setText(modelFileSelected);
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * Carica ResourceSet
 	 * 
 	 */
 	private void loadResourceSet() {
 
-		if(resourceSetFileContainerText!= null && !resourceSetFileContainerText.getText().equalsIgnoreCase("")){
+		if (resourceSetFileContainerText != null
+				&& !resourceSetFileContainerText.getText().equalsIgnoreCase("")) {
 			try {
-				URI rsFileURI = URI.createPlatformResourceURI(resourceSetFileContainerText.getText(), true);
+				URI rsFileURI = URI.createPlatformResourceURI(
+						resourceSetFileContainerText.getText(), true);
 				org.eclipse.emf.ecore.resource.ResourceSet resourceSetImpl = new ResourceSetImpl();
 				Resource rsResource = resourceSetImpl.createResource(rsFileURI);
 				Map<Object, Object> options = new HashMap<Object, Object>();
@@ -232,7 +242,7 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 
 				EList emfRSContent = (EList) rsResource.getContents();
 
-				//TEST TIPO RESOURCES SELEZIONATO
+				// TEST TIPO RESOURCES SELEZIONATO
 				if ((emfRSContent.get(0)) instanceof ResourceSet) {
 					resourceSet = (ResourceSet) (emfRSContent.get(0));
 				}
@@ -243,5 +253,5 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 			}
 		}
 	}
-	
+
 }
