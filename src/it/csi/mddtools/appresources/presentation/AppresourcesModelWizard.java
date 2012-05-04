@@ -235,7 +235,7 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 	 * Create a new model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	protected EObject createInitialModel() {
 		EClass eClass = (EClass)appresourcesPackage.getEClassifier(initialObjectCreationPage.getInitialObjectName());
