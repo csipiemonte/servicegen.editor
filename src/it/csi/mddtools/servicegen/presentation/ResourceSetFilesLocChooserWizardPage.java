@@ -34,6 +34,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -66,6 +67,7 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 	private ResourceSet resourceSet;
 	private Text resourceSetFileContainerText;
 	private Button selectResourceSetCheck;
+	
 	private WizardContext wizardContext;
 	
 	public WizardContext getWizardContext() {
@@ -79,6 +81,11 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 	public ResourceSet getResourceSet() {
 		return resourceSet;
 	}
+	
+	public boolean associaResourceSet() {
+		return selectResourceSetCheck!=null ? selectResourceSetCheck.getSelection() : false;
+	}
+
 
 	/**
 	 * Constructor for SampleNewWizardPage.
@@ -90,7 +97,8 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 		super("wizardPage");
 		this.selection = selection;
 		this.workbench = workbench;
-
+		
+		setTitle("Associa Resource Set");
 	}
 
 	/**
@@ -115,7 +123,8 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				newButton.setEnabled(selectResourceSetCheck.getSelection());
 				browseButton.setEnabled(selectResourceSetCheck.getSelection());
-
+				if(!selectResourceSetCheck.getSelection())
+					resourceSetFileContainerText.setText("");
 			}
 
 			@Override
@@ -136,10 +145,7 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 		resourceSetFileContainerText.setLayoutData(gd);		
 		resourceSetFileContainerText.setEnabled(false);
 
-		Label label = new Label(container, SWT.NULL);
-		label.setText("Inserire un nuovo Resource Set");
-		Label labelb = new Label(container, SWT.NULL);
-
+	
 		newButton = new Button(container, SWT.PUSH);
 		newButton.setText("Crea Nuovo ResourceSet");
 		newButton.addSelectionListener(new SelectionListener() {

@@ -251,7 +251,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 			model.setVersioneComponente(anaprodDataCreationPage.getVerComponente());
 			model.setTargetPlatform(ServicegenFactory.eINSTANCE.createTargetPlatform());
 
-			if(resourceSetFilesLocChooserWizardPage.getResourceSet()!=null){
+			if(resourceSetFilesLocChooserWizardPage.associaResourceSet() && resourceSetFilesLocChooserWizardPage.getResourceSet()!=null){
 				model.setResourceSet(resourceSetFilesLocChooserWizardPage.getResourceSet());
 			}
 		}
