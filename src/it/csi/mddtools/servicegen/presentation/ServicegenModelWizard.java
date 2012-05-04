@@ -304,7 +304,6 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 							EObject rootObject = createInitialModel();
 							if (rootObject != null) {
 								resource.getContents().add(rootObject);
-							
 							}
 
 							// Save the contents of the resource to the file system.
