@@ -261,8 +261,6 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 			//
 			WorkspaceModifyOperation operation =
 				new WorkspaceModifyOperation() {
-				
-
 					@Override
 					protected void execute(IProgressMonitor progressMonitor) {
 						try {
@@ -283,16 +281,12 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 							EObject rootObject = createInitialModel();
 							if (rootObject != null) {
 								resource.getContents().add(rootObject);
-								
-							
 							}
 
 							// Save the contents of the resource to the file system.
 							//
 							Map<Object, Object> options = new HashMap<Object, Object>();
 							options.put(XMLResource.OPTION_ENCODING, initialObjectCreationPage.getEncoding());
-							
-							
 							resource.save(options);
 						}
 						catch (Exception exception) {
