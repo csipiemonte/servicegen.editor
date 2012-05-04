@@ -1,49 +1,21 @@
 package it.csi.mddtools.servicegen.presentation.common;
 
-import org.eclipse.emf.ecore.EObject;
+import org.eclipse.jface.wizard.IWizard;
 
 public class WizardContext {
-	
-	public WizardContext( String createObjectFileName) {
-		this.createObjectFileName = createObjectFileName;
+
+	public WizardContext(IWizard wizard) {
+		this.wizard = wizard;
 	}
 
-	public WizardContext(EObject createdObject,
-			String createObjectContainerFullPath, String createObjectFileName) {
-		this.createdObject = createdObject;
-		this.createObjectContainerFullPath = createObjectContainerFullPath;
-		this.createObjectFileName = createObjectFileName;
+	private IWizard wizard;
+
+	public IWizard getWizard() {
+		return wizard;
 	}
 
-	private EObject createdObject;
-
-	public EObject getCreatedObject() {
-		return createdObject;
-	}
-
-	public void setCreatedObject(EObject createdObject) {
-		this.createdObject = createdObject;
-	}
-
-	private String createObjectContainerFullPath;
-
-	public String getCreateObjectContainerFullPath() {
-		return createObjectContainerFullPath;
-	}
-
-	public void setCreateObjectContainerFullPath(
-			String createObjectContainerFullPath) {
-		this.createObjectContainerFullPath = createObjectContainerFullPath;
-	}
-
-	private String createObjectFileName;
-
-	public String getCreateObjectFileName() {
-		return createObjectFileName;
-	}
-
-	public void setCreateObjectFileName(String createObjectFileName) {
-		this.createObjectFileName = createObjectFileName;
+	public void setWizard(IWizard wizard) {
+		this.wizard = wizard;
 	}
 
 }
