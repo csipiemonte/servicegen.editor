@@ -497,7 +497,7 @@ public class SvcorchModelWizard extends Wizard implements INewWizard {
 		/**
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
-		 * @generated
+		 * @generated NOT
 		 */
 		public void createControl(Composite parent) {
 			Composite composite = new Composite(parent, SWT.NONE); {
