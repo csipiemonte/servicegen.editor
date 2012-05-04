@@ -90,6 +90,7 @@ import org.eclipse.ui.part.ISetSelectionTarget;
 import it.csi.mddtools.appresources.AppresourcesFactory;
 import it.csi.mddtools.appresources.AppresourcesPackage;
 import it.csi.mddtools.appresources.provider.Resources_metamodelEditPlugin;
+import it.csi.mddtools.servicegen.presentation.common.WizardContext;
 
 
 import org.eclipse.core.runtime.Path;
@@ -183,6 +184,17 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 	 * @generated
 	 */
 	protected List<String> initialObjectNames;
+	
+	
+	private WizardContext wizardContext;
+
+	public WizardContext getWizardContext() {
+		return wizardContext;
+	}
+
+	public void setWizardContext(WizardContext wizardContext) {
+		this.wizardContext = wizardContext;
+	}
 
 	/**
 	 * This just records the information.
@@ -228,6 +240,7 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 	protected EObject createInitialModel() {
 		EClass eClass = (EClass)appresourcesPackage.getEClassifier(initialObjectCreationPage.getInitialObjectName());
 		EObject rootObject = appresourcesFactory.create(eClass);
+		wizardContext = new WizardContext(rootObject,newFileCreationPage.getContainerFullPath().toPortableString(),newFileCreationPage.getFileName());
 		return rootObject;
 	}
 
@@ -248,6 +261,8 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 			//
 			WorkspaceModifyOperation operation =
 				new WorkspaceModifyOperation() {
+				
+
 					@Override
 					protected void execute(IProgressMonitor progressMonitor) {
 						try {
@@ -268,12 +283,16 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 							EObject rootObject = createInitialModel();
 							if (rootObject != null) {
 								resource.getContents().add(rootObject);
+								
+							
 							}
 
 							// Save the contents of the resource to the file system.
 							//
 							Map<Object, Object> options = new HashMap<Object, Object>();
 							options.put(XMLResource.OPTION_ENCODING, initialObjectCreationPage.getEncoding());
+							
+							
 							resource.save(options);
 						}
 						catch (Exception exception) {
@@ -614,13 +633,24 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 					//
 					newFileCreationPage.setContainerFullPath(selectedResource.getFullPath());
 
-					// Make up a unique new name here.
-					//
 					String defaultModelBaseFilename = Resources_metamodelEditorPlugin.INSTANCE.getString("_UI_AppresourcesEditorFilenameDefaultBase");
 					String defaultModelFilenameExtension = FILE_EXTENSIONS.get(0);
-					String modelFilename = defaultModelBaseFilename + "." + defaultModelFilenameExtension;
-					for (int i = 1; ((IContainer)selectedResource).findMember(modelFilename) != null; ++i) {
-						modelFilename = defaultModelBaseFilename + i + "." + defaultModelFilenameExtension;
+					String modelFilename = "";
+					WizardContext wc = getWizardContext();
+					String fileNameContext = wc != null ? wc.getCreateObjectFileName() : null;
+					
+					if(fileNameContext != null && !fileNameContext.equalsIgnoreCase("")){
+						modelFilename = fileNameContext + "." + defaultModelFilenameExtension;
+						for (int i = 1; ((IContainer)selectedResource).findMember(modelFilename) != null; ++i) {
+							modelFilename = defaultModelBaseFilename + i + "." + defaultModelFilenameExtension;
+						}
+					}
+					else{
+						// Make up a unique new name here.
+						modelFilename = defaultModelBaseFilename + "." + defaultModelFilenameExtension;
+						for (int i = 1; ((IContainer)selectedResource).findMember(modelFilename) != null; ++i) {
+							modelFilename = defaultModelBaseFilename + i + "." + defaultModelFilenameExtension;
+						}
 					}
 					newFileCreationPage.setFileName(modelFilename);
 				}

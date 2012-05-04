@@ -161,24 +161,11 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated NOT
-	 */
-	
+	 */	
 	protected TypedefFactory typedefFactory = typedefPackage.getTypedefFactory();
 	 
-	/**
-	 * This is the file creation page.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	protected ServicedefModelWizardNewFileCreationPage newFileCreationPage;
 
-	/**
-	 * This is the initial object creation page.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	protected ServicedefModelWizardInitialObjectCreationPage initialObjectCreationPage;
 	
 	protected ServicedefModelWizardServiceInfoCreationPage serviceInfoPage;
@@ -314,7 +301,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 	 * Do the work after everything is specified.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	@Override
 	public boolean performFinish() {
@@ -1310,7 +1297,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 			 * The framework calls this to see if the file is correct.
 			 * <!-- begin-user-doc -->
 			 * <!-- end-user-doc -->
-			 * @generated
+			 * @generated NOT
 			 */
 			protected boolean validaModello() {
 				boolean res = false;

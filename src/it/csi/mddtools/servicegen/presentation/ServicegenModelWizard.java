@@ -25,6 +25,7 @@ import it.csi.mddtools.servicegen.SOABEModel;
 import it.csi.mddtools.servicegen.ServicegenFactory;
 import it.csi.mddtools.servicegen.ServicegenPackage;
 import it.csi.mddtools.servicegen.TargetPlatformCodes;
+import it.csi.mddtools.servicegen.presentation.common.WizardContext;
 import it.csi.mddtools.servicegen.provider.Servicegen_metamodelEditPlugin;
 
 import java.util.ArrayList;
@@ -177,6 +178,8 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 */
 	protected List<String> initialObjectNames;
 
+	private ResourceSetFilesLocChooserWizardPage resourceSetFilesLocChooserWizardPage;
+
 	/**
 	 * This just records the information.
 	 * <!-- begin-user-doc -->
@@ -247,6 +250,10 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 			model.setVersioneProdotto(anaprodDataCreationPage.getVerProdotto());
 			model.setVersioneComponente(anaprodDataCreationPage.getVerComponente());
 			model.setTargetPlatform(ServicegenFactory.eINSTANCE.createTargetPlatform());
+
+			if(resourceSetFilesLocChooserWizardPage.getResourceSet()!=null){
+				model.setResourceSet(resourceSetFilesLocChooserWizardPage.getResourceSet());
+			}
 		}
 		// se la classe � BaseTypes creo un modello di tipi base
 //		else if (initialObjectCreationPage.getInitialObjectName().indexOf("BaseTypes")!=-1){
@@ -297,6 +304,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 							EObject rootObject = createInitialModel();
 							if (rootObject != null) {
 								resource.getContents().add(rootObject);
+							
 							}
 
 							// Save the contents of the resource to the file system.
@@ -951,8 +959,9 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
-		@Override
+	@Override
 	public void addPages() {
+		//PAGINA 1 --> crea NewFile	
 		// Create a page, set the title, and the initial model file name.
 		//
 		newFileCreationPage = new ServicegenModelWizardNewFileCreationPage("Whatever", selection);
@@ -961,6 +970,24 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 		newFileCreationPage.setFileName(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicegenEditorFilenameDefaultBase") + "." + FILE_EXTENSIONS.get(0));
 		addPage(newFileCreationPage);
 
+		//PAGINA 2 --> Scelta Model e Serializer (Unica Opzione SOABModle)
+		initialObjectCreationPage = new ServicegenModelWizardInitialObjectCreationPage("Whatever2");
+		initialObjectCreationPage.setTitle(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicegenModelWizard_label"));
+		initialObjectCreationPage.setDescription(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
+		addPage(initialObjectCreationPage);
+
+		//PAGINA 3 --> Inserimenti dati anagraica prodotto e Server Code
+		anaprodDataCreationPage = new ServicegenModelWizardAnaprodDataCreationPage("anaprodData");
+		anaprodDataCreationPage.setTitle("Dati identificazione del componente");
+		anaprodDataCreationPage.setDescription("Inserire i dati di identificazione del componente risultante come da specifiche ANAPROD");
+		addPage(anaprodDataCreationPage);
+
+		//PAGINA 4 --> Resource Set
+		resourceSetFilesLocChooserWizardPage = new ResourceSetFilesLocChooserWizardPage(selection,workbench);
+		addPage(resourceSetFilesLocChooserWizardPage);
+
+		
+		//IMPOSTO DEFAULT
 		// Try and get the resource selection to determine a current directory for the file dialog.
 		//
 		if (selection != null && !selection.isEmpty()) {
@@ -993,17 +1020,12 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 					newFileCreationPage.setFileName(modelFilename);
 				}
 			}
+			
+			String[] arg = newFileCreationPage.getFileName()!=null ? newFileCreationPage.getFileName().split("."): null;
+			String nameFile = arg!=null && arg.length>0 ? arg[0]:null;
+			WizardContext wizardContext = new WizardContext(nameFile);
+			resourceSetFilesLocChooserWizardPage.setWizardContext(wizardContext);
 		}
-		initialObjectCreationPage = new ServicegenModelWizardInitialObjectCreationPage("Whatever2");
-		initialObjectCreationPage.setTitle(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_ServicegenModelWizard_label"));
-		initialObjectCreationPage.setDescription(Servicegen_metamodelEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
-		addPage(initialObjectCreationPage);
-		
-		
-		anaprodDataCreationPage = new ServicegenModelWizardAnaprodDataCreationPage("anaprodData");
-		anaprodDataCreationPage.setTitle("Dati identificazione del componente");
-		anaprodDataCreationPage.setDescription("Inserire i dati di identificazione del componente risultante come da specifiche ANAPROD");
-		addPage(anaprodDataCreationPage);
 	
 		// TODO per ora non � utilizzato => commento
 //		commonFilesPage = new CommonFilesLocChooserWizardPage(selection);
@@ -1012,6 +1034,7 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 //		addPage(commonFilesPage);
 	}
 
+	
 	/**
 	 * Get the file from the page.
 	 * <!-- begin-user-doc -->
