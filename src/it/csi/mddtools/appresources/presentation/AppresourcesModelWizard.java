@@ -268,6 +268,7 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 	protected EObject createInitialModel() {
 		EClass eClass = (EClass)appresourcesPackage.getEClassifier(initialObjectCreationPage.getInitialObjectName());
 		EObject rootObject = appresourcesFactory.create(eClass);
+		wizardMessage = new WizardMessage(rootObject,newFileCreationPage.getContainerFullPath().toPortableString(),newFileCreationPage.getFileName());
 		return rootObject;
 	}
 
