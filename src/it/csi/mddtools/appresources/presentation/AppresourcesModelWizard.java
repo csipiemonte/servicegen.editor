@@ -91,6 +91,7 @@ import it.csi.mddtools.appresources.AppresourcesFactory;
 import it.csi.mddtools.appresources.AppresourcesPackage;
 import it.csi.mddtools.appresources.provider.Resources_metamodelEditPlugin;
 import it.csi.mddtools.servicegen.presentation.common.WizardContext;
+import it.csi.mddtools.servicegen.presentation.common.WizardMessage;
 
 
 import org.eclipse.core.runtime.Path;
@@ -185,7 +186,16 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 	 */
 	protected List<String> initialObjectNames;
 	
+	private WizardMessage wizardMessage;
 	
+	public WizardMessage getWizardMessage() {
+		return wizardMessage;
+	}
+
+	public void setWizardMessage(WizardMessage wizardMessage) {
+		this.wizardMessage = wizardMessage;
+	}
+
 	private WizardContext wizardContext;
 
 	public WizardContext getWizardContext() {
@@ -213,7 +223,7 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 	 * Returns the names of the types that can be created as the root object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	protected Collection<String> getInitialObjectNames() {
 		if (initialObjectNames == null) {
@@ -221,7 +231,7 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 			for (EClassifier eClassifier : appresourcesPackage.getEClassifiers()) {
 				if (eClassifier instanceof EClass) {
 					EClass eClass = (EClass)eClassifier;
-					if (!eClass.isAbstract()) {
+					if (!eClass.isAbstract() && canCreate(eClass)) {
 						initialObjectNames.add(eClass.getName());
 					}
 				}
@@ -229,6 +239,24 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 			Collections.sort(initialObjectNames, CommonPlugin.INSTANCE.getComparator());
 		}
 		return initialObjectNames;
+	}
+	
+	
+
+	private boolean canCreate(EClass cl){
+		
+		if(     cl.getName().equals("ResourceConnector")||
+				cl.getName().equals("PDPAServiceConnector")||
+				cl.getName().equals("FileSystemConnector")||
+				cl.getName().equals("JDBCDataSourceConnector")||
+				cl.getName().equals("LdapJndiConnector")||
+				cl.getName().equals("RPCWebServiceConnector")||
+				cl.getName().equals("ServiceSelector")||
+				cl.getName().equals("ResourceSet")||
+				cl.getName().equals("ServiceConnector"))
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -240,7 +268,6 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 	protected EObject createInitialModel() {
 		EClass eClass = (EClass)appresourcesPackage.getEClassifier(initialObjectCreationPage.getInitialObjectName());
 		EObject rootObject = appresourcesFactory.create(eClass);
-		wizardContext = new WizardContext(rootObject,newFileCreationPage.getContainerFullPath().toPortableString(),newFileCreationPage.getFileName());
 		return rootObject;
 	}
 
@@ -410,6 +437,17 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 		 */
 		protected Combo encodingField;
 
+		
+		private String typeResources;
+		
+		public String getTypeResources() {
+			return typeResources;
+		}
+
+		public void setTypeResources(String typeResources) {
+			this.typeResources = typeResources;
+		}
+
 		/**
 		 * Pass in the selection.
 		 * <!-- begin-user-doc -->
@@ -455,14 +493,21 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 				data.grabExcessHorizontalSpace = true;
 				initialObjectField.setLayoutData(data);
 			}
-
-			for (String objectName : getInitialObjectNames()) {
-				initialObjectField.add(getLabel(objectName));
+			
+			if(getTypeResources()!=null){
+				initialObjectField.add(getLabel(getTypeResources()));
+				initialObjectField.setEnabled(false);
 			}
-
+			else{
+				for (String objectName : getInitialObjectNames()) {
+					initialObjectField.add(getLabel(objectName));
+				}
+				
+			}
 			if (initialObjectField.getItemCount() == 1) {
 				initialObjectField.select(0);
 			}
+			
 			initialObjectField.addModifyListener(validator);
 
 			Label encodingLabel = new Label(composite, SWT.LEFT);
@@ -598,6 +643,8 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 	 */
 		@Override
 	public void addPages() {
+			
+		//PAGINA 1 crea NewFile
 		// Create a page, set the title, and the initial model file name.
 		//
 		newFileCreationPage = new AppresourcesModelWizardNewFileCreationPage("Whatever", selection);
@@ -606,6 +653,12 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 		newFileCreationPage.setFileName(Resources_metamodelEditorPlugin.INSTANCE.getString("_UI_AppresourcesEditorFilenameDefaultBase") + "." + FILE_EXTENSIONS.get(0));
 		addPage(newFileCreationPage);
 
+		//PAGINA 2 Seleziona Tipo Modello
+		initialObjectCreationPage = new AppresourcesModelWizardInitialObjectCreationPage("Whatever2");
+		initialObjectCreationPage.setTitle(Resources_metamodelEditorPlugin.INSTANCE.getString("_UI_AppresourcesModelWizard_label"));
+		initialObjectCreationPage.setDescription(Resources_metamodelEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
+		
+		addPage(initialObjectCreationPage);
 		// Try and get the resource selection to determine a current directory for the file dialog.
 		//
 		if (selection != null && !selection.isEmpty()) {
@@ -630,14 +683,14 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 					String defaultModelBaseFilename = Resources_metamodelEditorPlugin.INSTANCE.getString("_UI_AppresourcesEditorFilenameDefaultBase");
 					String defaultModelFilenameExtension = FILE_EXTENSIONS.get(0);
 					String modelFilename = "";
-					WizardContext wc = getWizardContext();
-					String fileNameContext = wc != null ? wc.getCreateObjectFileName() : null;
+					WizardMessage message = getWizardMessage();
+					
+					
+					String fileNameContext = message != null ? message.getCreateObjectFileName() : null;
 					
 					if(fileNameContext != null && !fileNameContext.equalsIgnoreCase("")){
-						modelFilename = fileNameContext + "." + defaultModelFilenameExtension;
-						for (int i = 1; ((IContainer)selectedResource).findMember(modelFilename) != null; ++i) {
-							modelFilename = defaultModelBaseFilename + i + "." + defaultModelFilenameExtension;
-						}
+						modelFilename = fileNameContext + defaultModelFilenameExtension;
+						initialObjectCreationPage.setTypeResources("ResourceSet");
 					}
 					else{
 						// Make up a unique new name here.
@@ -645,15 +698,15 @@ public class AppresourcesModelWizard extends Wizard implements INewWizard {
 						for (int i = 1; ((IContainer)selectedResource).findMember(modelFilename) != null; ++i) {
 							modelFilename = defaultModelBaseFilename + i + "." + defaultModelFilenameExtension;
 						}
+						initialObjectCreationPage.setTypeResources(null);
 					}
 					newFileCreationPage.setFileName(modelFilename);
+					
 				}
 			}
 		}
-		initialObjectCreationPage = new AppresourcesModelWizardInitialObjectCreationPage("Whatever2");
-		initialObjectCreationPage.setTitle(Resources_metamodelEditorPlugin.INSTANCE.getString("_UI_AppresourcesModelWizard_label"));
-		initialObjectCreationPage.setDescription(Resources_metamodelEditorPlugin.INSTANCE.getString("_UI_Wizard_initial_object_description"));
-		addPage(initialObjectCreationPage);
+		
+	
 	}
 
 	/**
