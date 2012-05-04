@@ -124,6 +124,7 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				updateStatus(null);
 				newButton.setEnabled(selectResourceSetCheck.getSelection());
 				browseButton.setEnabled(selectResourceSetCheck.getSelection());
 				if(!selectResourceSetCheck.getSelection())
@@ -157,9 +158,9 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setMessage(null);
-				IWizard wiz = wizardContext.getWizard();
-				if(wiz instanceof ServicegenModelWizard) {
+				updateStatus(null);
+				IWizard wiz = wizardContext!=null ? wizardContext.getWizard() : null;
+				if(wiz!= null && wiz instanceof ServicegenModelWizard) {
 					ServicegenModelWizard servicegenModelWizard =(ServicegenModelWizard)wiz;
 					String fileName = servicegenModelWizard.newFileCreationPage.getFileName();
 					String[] arg= fileName.split(servicegenModelWizard.FILE_EXTENSIONS.get(0));
@@ -190,8 +191,10 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 		browseButton.setText("Carica ResourceSet Esistente");
 		browseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
+				updateStatus(null);
 				handleBrowseResourceSet();
-				loadResourceSet();
+				if(!loadResourceSet())
+					updateStatus("Il modello scelto potrebbe non essere un modello di tipo ResourceSet valido");
 			}
 
 			
@@ -227,8 +230,9 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 	 * Carica ResourceSet
 	 * 
 	 */
-	private void loadResourceSet() {
+	private boolean loadResourceSet() {
 
+		boolean res = false;
 		if (resourceSetFileContainerText != null
 				&& !resourceSetFileContainerText.getText().equalsIgnoreCase("")) {
 			try {
@@ -245,13 +249,20 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 				// TEST TIPO RESOURCES SELEZIONATO
 				if ((emfRSContent.get(0)) instanceof ResourceSet) {
 					resourceSet = (ResourceSet) (emfRSContent.get(0));
+					res = true;
 				}
 
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
+		return res;
+	}
+	
+	private void updateStatus(String message) {
+		setErrorMessage(message);
+		setPageComplete(message == null);
+
 	}
 
 }
