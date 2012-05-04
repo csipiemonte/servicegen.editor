@@ -38,6 +38,7 @@ import it.csi.mddtools.servicegen.SOABEModel;
 import it.csi.mddtools.servicegen.ServiceImpl;
 import it.csi.mddtools.servicegen.ServicegenFactory;
 import it.csi.mddtools.servicegen.presentation.Servicegen_metamodelEditorPlugin;
+import it.csi.mddtools.servicegen.presentation.common.Utility;
 import it.csi.mddtools.servicegen.provider.Servicegen_metamodelEditPlugin;
 import it.csi.mddtools.typedef.CSIExceptionTypes;
 import it.csi.mddtools.typedef.Entity;
@@ -339,13 +340,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 							
 							if(serviceFileRefsPage.getModelloPrincipale()!= null &&(modPrincFilePath!=null && !"".equalsIgnoreCase(modPrincFilePath)) ){
 								//LOAD MODELLO PRINCIPALE 
-
-								URI modPrincFileURI = URI.createPlatformResourceURI(modPrincFilePath, true);
-								
-								modPrincResource = resourceSet.createResource(modPrincFileURI);
-								
-								modPrincResource.load(options);
-								EList emfModPrincContent = (EList)modPrincResource.getContents();
+								EList emfModPrincContent = Utility.loadResource(modPrincFilePath);
 								SOABEModel modPrincModule = (emfModPrincContent.get(0) instanceof SOABEModel) ? (SOABEModel)(emfModPrincContent.get(0)) : null;
 
 								if(null!= modPrincModule && rootObject instanceof ServiceDef){
@@ -1300,28 +1295,17 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 			 * @generated NOT
 			 */
 			protected boolean validaModello() {
+
 				boolean res = false;
-				if(this.getRootModelFile()!=null && !this.getRootModelFile().equalsIgnoreCase("")){
-					try {
-						String modPrincFilePath = this.getRootModelFile().toString();
-						URI modPrincFileURI = URI.createPlatformResourceURI(modPrincFilePath, true);
-						ResourceSet resourceSet = new ResourceSetImpl();
-						Resource modPrincResource = resourceSet.createResource(modPrincFileURI);
-						Map<Object, Object> options = new HashMap<Object, Object>();
-						
-						modPrincResource.load(options);
-						
-						EList emfModPrincContent = (EList)modPrincResource.getContents();
-						if ( (emfModPrincContent.get(0)) instanceof SOABEModel){
-							modelloPrincipale = (SOABEModel)emfModPrincContent.get(0);
-							res = true;
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-						return false;
-					}
+
+				EList emfRSContent = Utility.loadResource(getRootModelFile());
+
+				// TEST TIPO RESOURCES SELEZIONATO
+				if ((emfRSContent.get(0)) instanceof SOABEModel) {
+					modelloPrincipale = (SOABEModel) (emfRSContent.get(0));
+					res = true;
 				}
-				
+
 				return res;
 				
 			}

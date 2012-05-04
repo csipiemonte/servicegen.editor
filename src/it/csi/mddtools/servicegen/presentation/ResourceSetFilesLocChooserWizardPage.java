@@ -22,6 +22,7 @@ package it.csi.mddtools.servicegen.presentation;
 
 import it.csi.mddtools.appresources.ResourceSet;
 import it.csi.mddtools.appresources.presentation.AppresourcesModelWizard;
+import it.csi.mddtools.servicegen.presentation.common.Utility;
 import it.csi.mddtools.servicegen.presentation.common.WizardContext;
 import it.csi.mddtools.servicegen.presentation.common.WizardMessage;
 
@@ -233,29 +234,18 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 	private boolean loadResourceSet() {
 
 		boolean res = false;
-		if (resourceSetFileContainerText != null
-				&& !resourceSetFileContainerText.getText().equalsIgnoreCase("")) {
-			try {
-				URI rsFileURI = URI.createPlatformResourceURI(
-						resourceSetFileContainerText.getText(), true);
-				org.eclipse.emf.ecore.resource.ResourceSet resourceSetImpl = new ResourceSetImpl();
-				Resource rsResource = resourceSetImpl.createResource(rsFileURI);
-				Map<Object, Object> options = new HashMap<Object, Object>();
 
-				rsResource.load(options);
+		if (resourceSetFileContainerText != null) {
 
-				EList emfRSContent = (EList) rsResource.getContents();
+			EList emfRSContent = Utility.loadResource(resourceSetFileContainerText.getText());
 
-				// TEST TIPO RESOURCES SELEZIONATO
-				if ((emfRSContent.get(0)) instanceof ResourceSet) {
-					resourceSet = (ResourceSet) (emfRSContent.get(0));
-					res = true;
-				}
-
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			// TEST TIPO RESOURCES SELEZIONATO
+			if ((emfRSContent.get(0)) instanceof ResourceSet) {
+				resourceSet = (ResourceSet) (emfRSContent.get(0));
+				res = true;
 			}
 		}
+
 		return res;
 	}
 	
