@@ -365,6 +365,9 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 	 * @generated
 	 */
 	public class ServicegenModelWizardNewFileCreationPage extends WizardNewFileCreationPage {
+		
+		
+		
 		/**
 		 * Pass in the selection.
 		 * <!-- begin-user-doc -->
@@ -983,6 +986,8 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 
 		//PAGINA 4 --> Resource Set
 		resourceSetFilesLocChooserWizardPage = new ResourceSetFilesLocChooserWizardPage(selection,workbench);
+		//FISSO IL CONTESTO
+		resourceSetFilesLocChooserWizardPage.setWizardContext(new WizardContext(this));
 		addPage(resourceSetFilesLocChooserWizardPage);
 
 		
@@ -1020,10 +1025,6 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 				}
 			}
 			
-			String[] arg = newFileCreationPage.getFileName()!=null ? newFileCreationPage.getFileName().split("."): null;
-			String nameFile = arg!=null && arg.length>0 ? arg[0]:null;
-			WizardContext wizardContext = new WizardContext(nameFile);
-			resourceSetFilesLocChooserWizardPage.setWizardContext(wizardContext);
 		}
 	
 		// TODO per ora non � utilizzato => commento
