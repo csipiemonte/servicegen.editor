@@ -340,7 +340,12 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 							
 							if(serviceFileRefsPage.getModelloPrincipale()!= null &&(modPrincFilePath!=null && !"".equalsIgnoreCase(modPrincFilePath)) ){
 								//LOAD MODELLO PRINCIPALE 
-								EList emfModPrincContent = Utility.loadResource(modPrincFilePath);
+								URI modPrincFileURI = URI.createPlatformResourceURI(modPrincFilePath, true);
+
+								modPrincResource = resourceSet.createResource(modPrincFileURI);
+
+								modPrincResource.load(options);
+								EList emfModPrincContent = (EList)modPrincResource.getContents();
 								SOABEModel modPrincModule = (emfModPrincContent.get(0) instanceof SOABEModel) ? (SOABEModel)(emfModPrincContent.get(0)) : null;
 
 								if(null!= modPrincModule && rootObject instanceof ServiceDef){
