@@ -1210,7 +1210,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 				
 				selectSOABEModelCheck.addSelectionListener(new SelectionListener() {
 					
-					@Override
+				
 					public void widgetSelected(SelectionEvent e) {
 						if(selectSOABEModelCheck.getSelection()){
 							rootModelFile.setEnabled(true);
@@ -1223,7 +1223,7 @@ public class ServicedefModelWizard extends Wizard implements INewWizard {
 						
 					}
 
-					@Override
+					
 					public void widgetDefaultSelected(SelectionEvent e) {
 					}
 					

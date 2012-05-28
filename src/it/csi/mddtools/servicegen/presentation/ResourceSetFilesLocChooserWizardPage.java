@@ -123,7 +123,7 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 		selectResourceSetCheck.setSelection(false);
 		selectResourceSetCheck.addSelectionListener(new SelectionListener() {
 
-			@Override
+			
 			public void widgetSelected(SelectionEvent e) {
 				updateStatus(null);
 				newButton.setEnabled(selectResourceSetCheck.getSelection());
@@ -132,7 +132,7 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 					resourceSetFileContainerText.setText("");
 			}
 
-			@Override
+			
 			public void widgetDefaultSelected(SelectionEvent e) {
 				// TODO Auto-generated method stub
 
@@ -157,7 +157,7 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 
 			
 
-			@Override
+			
 			public void widgetSelected(SelectionEvent e) {
 				updateStatus(null);
 				IWizard wiz = wizardContext!=null ? wizardContext.getWizard() : null;
@@ -181,7 +181,7 @@ public class ResourceSetFilesLocChooserWizardPage extends WizardPage {
 				}
 			}
 
-			@Override
+			
 			public void widgetDefaultSelected(SelectionEvent e) {
 				// TODO Auto-generated method stub
 
