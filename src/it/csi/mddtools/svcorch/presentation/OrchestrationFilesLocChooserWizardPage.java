@@ -343,7 +343,6 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 	
 	// SELECTION COMBO Servizi
 	ModifyListener serviceDefComboValidator = new ModifyListener() {
-		@Override
 		public void modifyText(ModifyEvent e) {
 			operationCombo.removeAll();
 			setMessage(null);
@@ -374,7 +373,6 @@ public class OrchestrationFilesLocChooserWizardPage extends WizardPage {
 	
 	// SELECTION COMBO Operation
 	ModifyListener operationComboValidator = new ModifyListener() {
-		@Override
 		public void modifyText(ModifyEvent e) {
 			if(getServiceDefOrch()!=null){
 				EList<Operation> listaOperation = getServiceDefOrch().getOperations();
