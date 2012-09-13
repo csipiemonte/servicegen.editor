@@ -306,10 +306,21 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 								resource.getContents().add(rootObject);
 							}
 
+							if(rootObject instanceof SOABEModel){
+								SOABEModel servicegen = (SOABEModel) rootObject;
+								//TARGET PLATFORM
+							
+								servicegen.setTargetPlatform(ServicegenFactory.eINSTANCE.createTargetPlatform());
+								servicegen.getTargetPlatform().setCode(TargetPlatformCodes.getByName(anaprodDataCreationPage.getCodeServerCombo()));
+							}
+								
+							
 							// Save the contents of the resource to the file system.
 							//
 							Map<Object, Object> options = new HashMap<Object, Object>();
 							options.put(XMLResource.OPTION_ENCODING, initialObjectCreationPage.getEncoding());
+							
+						
 							resource.save(options);
 						}
 						catch (Exception exception) {
@@ -670,6 +681,15 @@ public class ServicegenModelWizard extends Wizard implements INewWizard {
 
 
 		private Combo codeServerCombo;
+		
+		public String getCodeServerCombo() {
+			
+			String txt = codeServerCombo != null ? codeServerCombo.getText(): null;
+			if (txt==null || txt.length()==0)
+				return null;
+			else
+				return txt;
+		}
 	
 		/**
 		 * Pass in the selection.
