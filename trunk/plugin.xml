@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+ <copyright>
+ </copyright>
+
+ $Id$
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="it.csi.mddtools.servicegen.presentation.ServicegenModelWizardID"
+            name="%_UI_ServicegenModelWizard_label"
+            class="it.csi.mddtools.servicegen.presentation.ServicegenModelWizard"
+            category="servicegen.editor.newwizards"
+            icon="icons/full/obj16/ServicegenModelFile.gif">
+         <description>%_UI_ServicegenModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+      <category
+            id="servicegen.editor.newwizards"
+            name="Servicegen wizards">
+      </category>
+      <wizard
+            category="servicegen.editor.newwizards"
+            class="it.csi.mddtools.servicegen.presentation.CommonFilesNewWizard"
+            icon="icons/full/obj16/ServicegenModelFile.gif"
+            id="it.csi.mddtools.servicegen.presentation.CommonFilesNewWizard"
+            name="Librerie standard per modelli SERVICEGEN">
+         <selection
+               class="org.eclipse.core.resources.IResource">
+         </selection>
+         <description>
+            Crea i files di &quot;libreria&quot; utilizzati dai modelli SERVICEGEN:
+- basetypes.typedef: contiene la definizione dei tipi base utilizzabili nella definizione delle interfacce e nella implementazione dei servizi
+
+Questo file devono essere importati come risorsa nei modelli che referenziano i tipi.
+         </description>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <editor
+            id="it.csi.mddtools.servicegen.presentation.ServicegenEditorID"
+            name="%_UI_ServicegenEditor_label"
+            icon="icons/full/obj16/ServicegenModelFile.gif"
+            extensions="servicegen"
+            class="it.csi.mddtools.servicegen.presentation.ServicegenEditor"
+            contributorClass="it.csi.mddtools.servicegen.presentation.ServicegenActionBarContributor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category">
+      </category>
+      <wizard
+            category="servicegen.editor.newwizards"
+            class="it.csi.mddtools.svcorch.presentation.SvcorchModelWizard"
+            icon="icons/full/obj16/SvcorchModelFile.gif"
+            id="it.csi.mddtools.svcorch.presentation.SvcorchModelWizardID"
+            name="%_UI_SvcorchModelWizard_label">
+         <description>
+            %_UI_SvcorchModelWizard_description
+         </description>
+         <selection
+               class="org.eclipse.core.resources.IResource">
+         </selection>
+      </wizard>
+      <category
+            id="servicegen.editor.newwizards"
+            name="Servicegen wizards">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="it.csi.mddtools.svcorch.presentation.SvcorchEditor"
+            contributorClass="it.csi.mddtools.svcorch.presentation.SvcorchActionBarContributor"
+            extensions="svcorch"
+            icon="icons/full/obj16/SvcorchModelFile.gif"
+            id="it.csi.mddtools.svcorch.presentation.SvcorchEditorID"
+            name="%_UI_SvcorchEditor_label">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category">
+      </category>
+      <wizard
+            category="servicegen.editor.newwizards"
+            class="it.csi.mddtools.appresources.presentation.AppresourcesModelWizard"
+            icon="icons/full/obj16/AppresourcesModelFile.gif"
+            id="it.csi.mddtools.appresources.presentation.AppresourcesModelWizardID"
+            name="%_UI_AppresourcesModelWizard_label">
+         <description>
+            %_UI_AppresourcesModelWizard_description
+         </description>
+         <selection
+               class="org.eclipse.core.resources.IResource">
+         </selection>
+      </wizard>
+      <category
+            id="servicegen.editor.newwizards"
+            name="Servicegen wizards">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="it.csi.mddtools.appresources.presentation.AppresourcesEditor"
+            contributorClass="it.csi.mddtools.appresources.presentation.AppresourcesActionBarContributor"
+            extensions="appresources"
+            icon="icons/full/obj16/AppresourcesModelFile.gif"
+            id="it.csi.mddtools.appresources.presentation.AppresourcesEditorID"
+            name="%_UI_AppresourcesEditor_label">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category">
+      </category>
+      <wizard
+            category="servicegen.editor.newwizards"
+            class="it.csi.mddtools.servicedef.presentation.ServicedefModelWizard"
+            icon="icons/full/obj16/ServicedefModelFile.gif"
+            id="it.csi.mddtools.servicedef.presentation.ServicedefModelWizardID"
+            name="%_UI_ServicedefModelWizard_label">
+         <description>
+            %_UI_ServicedefModelWizard_description
+         </description>
+         <selection
+               class="org.eclipse.core.resources.IResource">
+         </selection>
+      </wizard>
+      <category
+            id="servicegen.editor.newwizards"
+            name="Servicegen wizards">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="it.csi.mddtools.servicedef.presentation.ServicedefEditor"
+            contributorClass="it.csi.mddtools.servicedef.presentation.ServicedefActionBarContributor"
+            extensions="servicedef"
+            icon="icons/full/obj16/ServicedefModelFile.gif"
+            id="it.csi.mddtools.servicedef.presentation.ServicedefEditorID"
+            name="%_UI_ServicedefEditor_label">
+      </editor>
+   </extension>
+
+</plugin>

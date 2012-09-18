@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<servicegen:BaseTypes xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:servicegen="http://www.csi.it/mddtools/servicegen" xmlns:typedef="http://www.csi.it/mddtools/typedef">
+  <baseTypes xsi:type="typedef:PrimitiveType" name="byte" typesetName="xsd">
+    <languageBindings lang="java" langSpecificType="byte" defaultInitValue="0"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableByte" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="Byte" langSpecificNS="java.lang." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="short" typesetName="xsd">
+    <languageBindings lang="java" langSpecificType="short" defaultInitValue="0"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableShort" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="Short" langSpecificNS="java.lang." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="int" typesetName="xsd">
+    <languageBindings lang="java" langSpecificType="int" defaultInitValue="0"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableInt" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="Integer" langSpecificNS="java.lang." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="long" typesetName="xsd">
+    <languageBindings lang="java" langSpecificType="long" defaultInitValue="0L"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableLong" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="Long" langSpecificNS="java.lang." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="float" typesetName="xsd">
+    <languageBindings lang="java" langSpecificType="float" defaultInitValue="0.0F"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableFloat" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="Float" langSpecificNS="java.lang." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="double" typesetName="xsd">
+    <languageBindings lang="java" langSpecificType="int" defaultInitValue="0.0D"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableDouble" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="Double" langSpecificNS="java.lang." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="boolean" typesetName="xsd">
+    <languageBindings lang="java" langSpecificType="boolean" defaultInitValue="false"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableBoolean" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="Boolean" langSpecificNS="java.lang." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="integer" typesetName="xsd">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="BigInteger" langSpecificNS="java.math." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableInteger" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="BigInteger" langSpecificNS="java.math." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="decimal" typesetName="xsd">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="BigDecimal" langSpecificNS="java.math." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableDecimal" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="BigDecimal" langSpecificNS="java.math." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="date" typesetName="xsd">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+      <details key="@XmlSchemaType" value="name = &quot;date&quot;"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="XMLGregorianCalendar" langSpecificNS="javax.xml.datatype." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableDate" typesetName="xsd" nillable="true">
+    <annotations source="jaxb">
+      <details key="@XmlSchemaType" value="name = &quot;date&quot;"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="XMLGregorianCalendar" langSpecificNS="javax.xml.datatype." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="time" typesetName="xsd">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+      <details key="@XmlSchemaType" value="name = &quot;time&quot;"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="XMLGregorianCalendar" langSpecificNS="javax.xml.datatype." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableTime" typesetName="xsd" nillable="true">
+    <annotations source="jaxb">
+      <details key="@XmlSchemaType" value="name = &quot;time&quot;"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="XMLGregorianCalendar" langSpecificNS="javax.xml.datatype." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="dateTime" typesetName="xsd">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+      <details key="@XmlSchemaType" value="name = &quot;dateTime&quot;"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="XMLGregorianCalendar" langSpecificNS="javax.xml.datatype." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableDateTime" typesetName="xsd" nillable="true">
+    <annotations source="jaxb">
+      <details key="@XmlSchemaType" value="name = &quot;dateTime&quot;"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="XMLGregorianCalendar" langSpecificNS="javax.xml.datatype." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="string" typesetName="xsd">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="String" langSpecificNS="java.lang." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableString" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="String" langSpecificNS="java.lang." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="byteArray" typesetName="xsd">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="byte[]" defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableByteArray" typesetName="xsd" nillable="true">
+    <languageBindings lang="java" langSpecificType="byte[]" defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="base64Binary" typesetName="xsd">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+      <details key="@XmlMimeType" value="&quot;application/octet-stream&quot;"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="DataHandler" langSpecificNS="javax.activation." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:PrimitiveType" name="nillableBase64Binary" typesetName="xsd" nillable="true">
+    <annotations source="jaxb">
+      <details key="XmlMimeType" value="&quot;application/octet-stream&quot;"/>
+    </annotations>
+    <languageBindings lang="java" langSpecificType="DataHandler" langSpecificNS="javax.activation." defaultInitValue="null" nullValueLiteral="null"/>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of byte" componentType="//@baseTypes.0">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Byte.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableByte" componentType="//@baseTypes.1">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Byte.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of short" componentType="//@baseTypes.2">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Short.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableShort" componentType="//@baseTypes.3">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Short.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of int" componentType="//@baseTypes.4">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Integer.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableInt" componentType="//@baseTypes.5">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Integer.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of long" componentType="//@baseTypes.6">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Long.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableLong" componentType="//@baseTypes.7">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Long.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of float" componentType="//@baseTypes.8">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Float.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableFloat" componentType="//@baseTypes.9">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Float.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of double" componentType="//@baseTypes.10">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Double.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableDouble " componentType="//@baseTypes.11">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Double.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of boolean" componentType="//@baseTypes.12">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Boolean.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableBoolean" componentType="//@baseTypes.13">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="type = Boolean.class"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of integer" componentType="//@baseTypes.14">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableInteger" componentType="//@baseTypes.15"/>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of decimal" componentType="//@baseTypes.16">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableDecimal" componentType="//@baseTypes.17"/>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of date" componentType="//@baseTypes.18">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+      <details key="@XmlSchemaType" value="name = &quot;date&quot;"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableDate" componentType="//@baseTypes.19">
+    <annotations source="jaxb">
+      <details key="@XmlSchemaType" value="name = &quot;date&quot;"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of time" componentType="//@baseTypes.20">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+      <details key="@XmlSchemaType" value="name = &quot;time&quot;"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableTime" componentType="//@baseTypes.21">
+    <annotations source="jaxb">
+      <details key="@XmlSchemaType" value="name = &quot;time&quot;"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of dateTime" componentType="//@baseTypes.22">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+      <details key="@XmlSchemaType" value="name = &quot;dateTime&quot;"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableDateTime" componentType="//@baseTypes.23">
+    <annotations source="jaxb">
+      <details key="@XmlSchemaType" value="name = &quot;dateTime&quot;"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of string" componentType="//@baseTypes.24">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableString" componentType="//@baseTypes.25"/>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of byteArray" componentType="//@baseTypes.26">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableByteArray" componentType="//@baseTypes.27"/>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of base64Binary" componentType="//@baseTypes.28">
+    <annotations source="jaxb">
+      <details key="@XmlElement" value="required = true"/>
+      <details key="@XmlMimeType" value="application/octet-stream"/>
+    </annotations>
+  </baseTypes>
+  <baseTypes xsi:type="typedef:TypedArray" name="List of nillableBase64Binary" componentType="//@baseTypes.29">
+    <annotations source="jaxb">
+      <details key="@XmlMimeType" value="application/octet-stream"/>
+    </annotations>
+  </baseTypes>
+</servicegen:BaseTypes>
