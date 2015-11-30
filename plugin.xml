@@ -45,6 +45,22 @@ Questo file devono essere importati come risorsa nei modelli che referenziano i 
       </wizard>
    </extension>
 
+   <extension point="org.eclipse.ui.newWizards">
+      <!-- @generated typedef_metamodel -->
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="it.csi.mddtools.typedef.presentation.TypedefModelWizardID"
+            name="%_UI_TypedefModelWizard_label"
+            class="it.csi.mddtools.typedef.presentation.TypedefModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/TypedefModelFile.gif">
+         <description>%_UI_TypedefModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
    <extension point="org.eclipse.ui.editors">
       <!-- @generated typedef_metamodel -->
       <editor
@@ -55,6 +71,22 @@ Questo file devono essere importati come risorsa nei modelli che referenziano i 
             class="it.csi.mddtools.typedef.presentation.TypedefEditor"
             contributorClass="it.csi.mddtools.typedef.presentation.TypedefActionBarContributor">
       </editor>
+   </extension>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <!-- @generated svcorch -->
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="it.csi.mddtools.svcorch.presentation.SvcorchModelWizardID"
+            name="%_UI_SvcorchModelWizard_label"
+            class="it.csi.mddtools.svcorch.presentation.SvcorchModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/SvcorchModelFile.gif">
+         <description>%_UI_SvcorchModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
    </extension>
 
    <extension point="org.eclipse.ui.editors">
@@ -69,6 +101,22 @@ Questo file devono essere importati come risorsa nei modelli che referenziano i 
       </editor>
    </extension>
 
+   <extension point="org.eclipse.ui.newWizards">
+      <!-- @generated servicedef_metamodel -->
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="it.csi.mddtools.servicedef.presentation.ServicedefModelWizardID"
+            name="%_UI_ServicedefModelWizard_label"
+            class="it.csi.mddtools.servicedef.presentation.ServicedefModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/ServicedefModelFile.gif">
+         <description>%_UI_ServicedefModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
    <extension point="org.eclipse.ui.editors">
       <!-- @generated servicedef_metamodel -->
       <editor
@@ -79,6 +127,22 @@ Questo file devono essere importati come risorsa nei modelli che referenziano i 
             class="it.csi.mddtools.servicedef.presentation.ServicedefEditor"
             contributorClass="it.csi.mddtools.servicedef.presentation.ServicedefActionBarContributor">
       </editor>
+   </extension>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <!-- @generated resources_metamodel -->
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="it.csi.mddtools.appresources.presentation.AppresourcesModelWizardID"
+            name="%_UI_AppresourcesModelWizard_label"
+            class="it.csi.mddtools.appresources.presentation.AppresourcesModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/AppresourcesModelFile.gif">
+         <description>%_UI_AppresourcesModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
    </extension>
 
    <extension point="org.eclipse.ui.editors">
